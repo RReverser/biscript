@@ -1906,8 +1906,7 @@
 
   function parseBinaryTypeDef(node) {
     next();
-    node.binaryType = parseExpression();
-    node.id = parseIdent();
+    node.definition = parseBinaryIdent();
     return finishNode(node, "BinaryTypeDef");
   }
 

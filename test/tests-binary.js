@@ -118,65 +118,70 @@ test("typedef struct { int x; char y } MyStruct", {
       type: "BinaryTypeDef",
       start: 0,
       end: 41,
-      binaryType: {
-        type: "BinaryStructure",
+      definition: {
+        type: "BinaryIdentifier",
         start: 8,
-        end: 32,
-        kind: "struct",
-        id: null,
-        params: [],
-        rest: null,
-        body: {
-          type: "BlockStatement",
-          start: 15,
-          end: 32,
-          body: [
-            {
-              type: "BinaryBinding",
-              start: 17,
-              end: 23,
-              ids: [
-                {
-                  type: "Identifier",
-                  start: 21,
-                  end: 22,
-                  name: "x"
-                }
-              ],
-              binaryType: {
-                type: "Identifier",
-                start: 17,
-                end: 20,
-                name: "int"
-              }
-            },
-            {
-              type: "BinaryBinding",
-              start: 24,
-              end: 30,
-              ids: [
-                {
-                  type: "Identifier",
-                  start: 29,
-                  end: 30,
-                  name: "y"
-                }
-              ],
-              binaryType: {
-                type: "Identifier",
-                start: 24,
-                end: 28,
-                name: "char"
-              }
-            }
-          ]
-        }
-      },
-      id: {
-        type: "Identifier",
-        start: 33,
         end: 41,
-        name: "MyStruct"
+        binaryType: {
+          type: "BinaryStructure",
+          start: 8,
+          end: 32,
+          kind: "struct",
+          id: null,
+          params: [],
+          rest: null,
+          body: {
+            type: "BlockStatement",
+            start: 15,
+            end: 32,
+            body: [
+              {
+                type: "BinaryBinding",
+                start: 17,
+                end: 23,
+                ids: [
+                  {
+                    type: "Identifier",
+                    start: 21,
+                    end: 22,
+                    name: "x"
+                  }
+                ],
+                binaryType: {
+                  type: "Identifier",
+                  start: 17,
+                  end: 20,
+                  name: "int"
+                }
+              },
+              {
+                type: "BinaryBinding",
+                start: 24,
+                end: 30,
+                ids: [
+                  {
+                    type: "Identifier",
+                    start: 29,
+                    end: 30,
+                    name: "y"
+                  }
+                ],
+                binaryType: {
+                  type: "Identifier",
+                  start: 24,
+                  end: 28,
+                  name: "char"
+                }
+              }
+            ]
+          }
+        },
+        id: {
+          type: "Identifier",
+          start: 33,
+          end: 41,
+          name: "MyStruct"
+        }
       }
     }
   ]
