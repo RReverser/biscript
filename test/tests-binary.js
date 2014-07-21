@@ -43,8 +43,11 @@ test("struct MyStruct { int x; char y }", {
   type: "Program",
   start: 0,
   end: 33,
-  body: [
-    {
+  body: [{
+    type: "ExpressionStatement",
+    start: 0,
+    end: 33,
+    expression: {
       type: "BinaryStructure",
       start: 0,
       end: 33,
@@ -103,18 +106,22 @@ test("struct MyStruct { int x; char y }", {
       },
       kind: "struct"
     }
-  ]
+  }]
 });
 
-test("struct VarSizeStruct(hasExtraId) { int id; if (hasExtraId) int extraId }", {
+test("struct VarSizeStruct(bool hasExtraId) { int id; if (hasExtraId) int extraId }", {
   type: "Program",
   start: 0,
-  end: 72,
-  body: [
-    {
+  end: 77,
+  body: [{
+    type: "ExpressionStatement",
+    start: 0,
+    end: 77,
+    expression: {
       type: "BinaryStructure",
       start: 0,
-      end: 72,
+      end: 77,
+      kind: "struct",
       id: {
         type: "Identifier",
         start: 7,
@@ -123,81 +130,94 @@ test("struct VarSizeStruct(hasExtraId) { int id; if (hasExtraId) int extraId }",
       },
       params: [
         {
-          type: "Identifier",
+          type: "BinaryIdentifier",
           start: 21,
-          end: 31,
-          name: "hasExtraId"
+          end: 36,
+          id: {
+            type: "Identifier",
+            start: 26,
+            end: 36,
+            name: "hasExtraId"
+          },
+          binaryType: {
+            type: "Identifier",
+            start: 21,
+            end: 25,
+            name: "bool"
+          }
         }
       ],
       rest: null,
       body: {
         type: "BlockStatement",
-        start: 33,
-        end: 72,
+        start: 38,
+        end: 77,
         body: [
           {
             type: "BinaryBinding",
-            start: 35,
-            end: 42,
-            binaryType: {
-              type: "Identifier",
-              start: 35,
-              end: 38,
-              name: "int"
-            },
+            start: 40,
+            end: 47,
             ids: [
               {
                 type: "Identifier",
-                start: 39,
-                end: 41,
+                start: 44,
+                end: 46,
                 name: "id"
               }
-            ]
+            ],
+            binaryType: {
+              type: "Identifier",
+              start: 40,
+              end: 43,
+              name: "int"
+            }
           },
           {
             type: "IfStatement",
-            start: 43,
-            end: 70,
+            start: 48,
+            end: 75,
             test: {
               type: "Identifier",
-              start: 47,
-              end: 57,
+              start: 52,
+              end: 62,
               name: "hasExtraId"
             },
             consequent: {
               type: "BinaryBinding",
-              start: 59,
-              end: 70,
-              binaryType: {
-                type: "Identifier",
-                start: 59,
-                end: 62,
-                name: "int"
-              },
+              start: 64,
+              end: 75,
               ids: [
                 {
                   type: "Identifier",
-                  start: 63,
-                  end: 70,
+                  start: 68,
+                  end: 75,
                   name: "extraId"
                 }
-              ]
+              ],
+              binaryType: {
+                type: "Identifier",
+                start: 64,
+                end: 67,
+                name: "int"
+              }
             },
             alternate: null
           }
         ]
-      },
-      kind: "struct"
+      }
     }
-  ]
+  }]
 });
 
 test("union MyUnion { ushort s; double d; int i }", {
   type: "Program",
   start: 0,
   end: 43,
-  body: [
-    {
+  body: [{
+    type: "ExpressionStatement",
+    start: 0,
+    end: 43,
+    expression: {
       type: "BinaryStructure",
       start: 0,
       end: 43,
@@ -275,7 +295,7 @@ test("union MyUnion { ushort s; double d; int i }", {
       },
       kind: "union"
     }
-  ]
+  }]
 });
 
 test("struct { string s } x", {

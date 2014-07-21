@@ -1182,7 +1182,6 @@
     case _throw: return parseThrowStatement(node);
     case _try: return parseTryStatement(node);
     case _var: case _let: case _const: case _local: return parseVarStatement(node, starttype.keyword);
-    case _struct: case _union: return parseBinaryStruct(node, starttype.keyword);
     case _while: return parseWhileStatement(node);
     case _with: return parseWithStatement(node);
     case _braceL: return parseBlock(); // no point creating a function for this
@@ -1195,13 +1194,11 @@
       // Identifier node, we switch to interpreting it as a label.
     default:
       var maybeName = tokVal, expr = parseExpression();
-      if (starttype === _name) {
-        if (expr.type === "Identifier" && eat(_colon)) {
-          return parseLabeledStatement(node, maybeName, expr);
-        }
-        if (tokType === _name) {
-          return parseBinaryBinding(node, expr);
-        }
+      if (starttype === _name && expr.type === "Identifier" && eat(_colon)) {
+        return parseLabeledStatement(node, maybeName, expr);
+      }
+      if (tokType === _name) {
+        return parseBinaryBinding(node, expr);
       }
       return parseExpressionStatement(node, expr);
     }
@@ -1686,10 +1683,16 @@
     case _braceL:
       return parseObj();
 
-    case _function:
+    case _function: case _struct: case _union:
       var node = startNode();
+      var isBinaryStructure = tokType !== _function;
+      if (isBinaryStructure) {
+        node.kind = tokVal;
+      }
       next();
-      return parseFunction(node, false);
+      parseFunction(node, false, isBinaryStructure);
+      if (isBinaryStructure && (tokType !== _name) && !node.id) unexpected();
+      return node;
 
     case _new:
       return parseNew();
@@ -1780,7 +1783,7 @@
           expect(_parenR);
           break;
         } else {
-          node.params.push(parseIdent());
+          node.params.push(parseBinaryIdent());
           if (!eat(_comma)) {
             expect(_parenR);
             break;
@@ -1872,7 +1875,6 @@
   // comma-separated identifiers.
 
   function parseBinaryBinding(node, binaryType) {
-    node.binaryType = binaryType;
     node.ids = [];
     for (;;) {
       var id = parseIdent();
@@ -1882,20 +1884,21 @@
       if (!eat(_comma)) break;
     }
     semicolon();
+    node.binaryType = binaryType;
     return finishNode(node, "BinaryBinding");
   }
 
-  // Parse structure starting from next token
+  // Parse optionally typed binary identifier
 
-  function parseBinaryStruct(node, kind) {
-    next();
-    var node = parseFunction(node, false, true);
-    node.kind = kind;
-    if (tokType === _name) {
-      return parseBinaryBinding(startNodeFrom(node), node);
+  function parseBinaryIdent() {
+    var binaryType = parseExpression(true);
+    if (tokType !== _name) {
+      return binaryType.type === "Identifier" ? binaryType : raise(binaryType.start, "Unexpected token");
     }
-    if (!node.id) unexpected();
-    return node;
+    var node = startNodeFrom(binaryType);
+    node.id = parseIdent();
+    node.binaryType = binaryType;
+    return finishNode(node, "BinaryIdentifier");
   }
 
 });
