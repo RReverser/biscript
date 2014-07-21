@@ -1873,12 +1873,12 @@
 
   function parseBinaryBinding(node, binaryType) {
     node.binaryType = binaryType;
-    node.names = [];
+    node.ids = [];
     for (;;) {
       var id = parseIdent();
       if (strict && isStrictBadIdWord(id.name))
         raise(id.start, "Binding " + id.name + " in strict mode");
-      node.names.push(id);
+      node.ids.push(id);
       if (!eat(_comma)) break;
     }
     semicolon();
@@ -1889,8 +1889,12 @@
 
   function parseBinaryStruct(node, kind) {
     next();
-    var node = parseFunction(node, true, true);
+    var node = parseFunction(node, false, true);
     node.kind = kind;
+    if (tokType === _name) {
+      return parseBinaryBinding(startNodeFrom(node), node);
+    }
+    if (!node.id) unexpected();
     return node;
   }
 
