@@ -1186,6 +1186,7 @@
     case _with: return parseWithStatement(node);
     case _braceL: return parseBlock(); // no point creating a function for this
     case _semi: return parseEmptyStatement(node);
+    case _typedef: return parseBinaryTypeDef(node);
 
       // If the statement does not start with a statement keyword or a
       // brace, it's an ExpressionStatement or LabeledStatement. We
@@ -1899,6 +1900,15 @@
     node.id = parseIdent();
     node.binaryType = binaryType;
     return finishNode(node, "BinaryIdentifier");
+  }
+
+  // Parse type definition
+
+  function parseBinaryTypeDef(node) {
+    next();
+    node.binaryType = parseExpression();
+    node.id = parseIdent();
+    return finishNode(node, "BinaryTypeDef");
   }
 
 });
