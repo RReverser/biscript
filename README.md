@@ -1,6 +1,14 @@
-# Acorn
+# Acorn (Binary Scripts edition)
 
-A tiny, fast JavaScript parser, written completely in JavaScript.
+This is modification of [Acorn][acorn] - a tiny, fast JavaScript parser, written completely in JavaScript.
+
+It aims to implement [010 Editor][010-editor] syntax used for [binary templates][binary-templates] on top of
+JavaScript so resulting AST could be transpiled to native JavaScript with usage of [jBinary][jbinary] type structures.
+
+[acorn]: http://marijnhaverbeke.nl/acorn/
+[010-editor]: http://www.sweetscape.com/010editor/
+[binary-templates]: http://www.sweetscape.com/010editor/templates.html
+[jbinary]: https://jdataview.github.io/jBinary
 
 ## Installation
 
@@ -127,19 +135,6 @@ can't count on it staying stable.
 
 **tokTypes** holds an object mapping names to the token type objects
 that end up in the `type` properties of tokens.
-
-### acorn_loose.js ###
-
-This file implements an error-tolerant parser. It exposes a single
-function.
-
-**parse_dammit**`(input, options)` takes the same arguments and
-returns the same syntax tree as the `parse` function in `acorn.js`,
-but never raises an error, and will do its best to parse syntactically
-invalid code in as meaningful a way as it can. It'll insert identifier
-nodes with name `"✖"` as placeholders in places where it can't make
-sense of the input. Depends on `acorn.js`, because it uses the same
-tokenizer.
 
 ### util/walk.js ###
 

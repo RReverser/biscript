@@ -26329,36 +26329,6 @@ test("123.+2", {
   ]
 });
 
-test("a\u2028b", {
-  type: "Program",
-  start: 0,
-  end: 3,
-  body: [
-    {
-      type: "ExpressionStatement",
-      start: 0,
-      end: 1,
-      expression: {
-        type: "Identifier",
-        start: 0,
-        end: 1,
-        name: "a"
-      }
-    },
-    {
-      type: "ExpressionStatement",
-      start: 2,
-      end: 3,
-      expression: {
-        type: "Identifier",
-        start: 2,
-        end: 3,
-        name: "b"
-      }
-    }
-  ]
-});
-
 test("'a\\u0026b'", {
   type: "Program",
   body: [
@@ -26898,16 +26868,10 @@ testFail("function false() { }",
 testFail("function if() { }",
          "Unexpected token (1:9)");
 
-testFail("a b;",
-         "Unexpected token (1:2)");
-
 testFail("if.a;",
          "Unexpected token (1:2)");
 
 testFail("a if;",
-         "Unexpected token (1:2)");
-
-testFail("a class;",
          "Unexpected token (1:2)");
 
 testFail("break\n",
@@ -26963,9 +26927,6 @@ testFail("try { }",
 
 testFail("‿ = 10",
          "Unexpected character '‿' (1:0)");
-
-testFail("if(true) let a = 1;",
-         "Unexpected token (1:13)");
 
 testFail("switch (c) { default: default: }",
          "Multiple default clauses (1:22)");
@@ -27264,14 +27225,6 @@ testFail("throw\n10;", "Illegal newline after throw (1:5)");
 
 
 // ECMA < 6 mode should work as before
-
-testFail("const a;", "Unexpected token (1:6)");
-
-testFail("let x;", "Unexpected token (1:4)");
-
-testFail("const a = 1;", "Unexpected token (1:6)");
-
-testFail("let a = 1;", "Unexpected token (1:4)");
 
 testFail("for(const x = 0;;);", "Unexpected token (1:10)");
 
@@ -28982,7 +28935,7 @@ testFail("for(const x = 0;;);", "Unexpected token (1:4)", {ecmaVersion: 6});
       Cat.prototype.roar = function(message) {
         return 'MEOOWW: ' + /*stuff*/ message;
       };
-    }.toString(),
+    }.toString().replace(/\r\n/g, '\n'),
     function assert(ast) {
       if (actualComments.length !== expectedComments.length) {
         return JSON.stringify(actualComments) + " !== " + JSON.stringify(expectedComments);

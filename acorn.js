@@ -278,7 +278,8 @@
   var _finally = {keyword: "finally"}, _for = {keyword: "for", isLoop: true}, _function = {keyword: "function"};
   var _if = {keyword: "if"}, _return = {keyword: "return", beforeExpr: true}, _switch = {keyword: "switch"};
   var _throw = {keyword: "throw", beforeExpr: true}, _try = {keyword: "try"}, _var = {keyword: "var"};
-  var _let = {keyword: "let"}, _const = {keyword: "const"};
+  var _let = {keyword: "let"}, _const = {keyword: "const"}, _local = {keyword: "local"};
+  var _typedef = {keyword: "typedef"}, _struct = {keyword: "struct"}, _union = {keyword: "union"}, _enum = {keyword: "enum"};
   var _while = {keyword: "while", isLoop: true}, _with = {keyword: "with"}, _new = {keyword: "new", beforeExpr: true};
   var _this = {keyword: "this"};
 
@@ -300,6 +301,8 @@
                       "do": _do, "else": _else, "finally": _finally, "for": _for,
                       "function": _function, "if": _if, "return": _return, "switch": _switch,
                       "throw": _throw, "try": _try, "var": _var, "let": _let, "const": _const,
+                      "local": _local,
+                      "typedef": _typedef, "struct": _struct, "union": _union, "enum": _enum,
                       "while": _while, "with": _with,
                       "null": _null, "true": _true, "false": _false, "new": _new, "in": _in,
                       "instanceof": {keyword: "instanceof", binop: 7, beforeExpr: true}, "this": _this,
@@ -419,7 +422,7 @@
 
   // And the keywords.
 
-  var ecma5AndLessKeywords = "break case catch continue debugger default do else finally for function if return switch throw try var while with null true false instanceof typeof void delete new in this";
+  var ecma5AndLessKeywords = "break case catch continue debugger default do else finally for function if return switch throw try var while with null true false instanceof typeof void delete new in this local typedef struct union enum";
 
   var isEcma5AndLessKeyword = makePredicate(ecma5AndLessKeywords);
 
@@ -1178,7 +1181,8 @@
     case _switch: return parseSwitchStatement(node);
     case _throw: return parseThrowStatement(node);
     case _try: return parseTryStatement(node);
-    case _var: case _let: case _const: return parseVarStatement(node, starttype.keyword);
+    case _var: case _let: case _const: case _local: return parseVarStatement(node, starttype.keyword);
+    case _struct: case _union: return parseBinaryStruct(node, starttype.keyword);
     case _while: return parseWhileStatement(node);
     case _with: return parseWithStatement(node);
     case _braceL: return parseBlock(); // no point creating a function for this
@@ -1191,9 +1195,15 @@
       // Identifier node, we switch to interpreting it as a label.
     default:
       var maybeName = tokVal, expr = parseExpression();
-      if (starttype === _name && expr.type === "Identifier" && eat(_colon))
-        return parseLabeledStatement(node, maybeName, expr);
-      else return parseExpressionStatement(node, expr);
+      if (starttype === _name) {
+        if (expr.type === "Identifier" && eat(_colon)) {
+          return parseLabeledStatement(node, maybeName, expr);
+        }
+        if (tokType === _name) {
+          return parseBinaryBinding(node, expr);
+        }
+      }
+      return parseExpressionStatement(node, expr);
     }
   }
   
@@ -1755,27 +1765,30 @@
   // Parse a function declaration or literal (depending on the
   // `isStatement` parameter).
 
-  function parseFunction(node, isStatement) {
+  function parseFunction(node, isStatement, isBinaryStructure) {
     if (tokType === _name) node.id = parseIdent();
     else if (isStatement) unexpected();
     else node.id = null;
     node.params = [];
     node.rest = null;
-    expect(_parenL);
-    for (;;) {
-      if (eat(_parenR)) {
-        break;
-      } else if (options.ecmaVersion >= 6 && eat(_ellipsis)) {
-        node.rest = parseIdent();
-        expect(_parenR);
-        break;
-      } else {
-        node.params.push(parseIdent());
-        if (!eat(_comma)) {
+    if (eat(_parenL)) {
+      for (;;) {
+        if (eat(_parenR)) {
+          break;
+        } else if (options.ecmaVersion >= 6 && eat(_ellipsis)) {
+          node.rest = parseIdent();
           expect(_parenR);
           break;
+        } else {
+          node.params.push(parseIdent());
+          if (!eat(_comma)) {
+            expect(_parenR);
+            break;
+          }
         }
       }
+    } else {
+      if (!isBinaryStructure) unexpected();
     }
 
     // Start a new scope with regard to labels and the `inFunction`
@@ -1807,7 +1820,7 @@
       }
     }
 
-    return finishNode(node, isStatement ? "FunctionDeclaration" : "FunctionExpression");
+    return finishNode(node, isBinaryStructure ? "BinaryStructure" : (isStatement ? "FunctionDeclaration" : "FunctionExpression"));
   }
 
   // Parses a comma-separated list of expressions, and returns them as
@@ -1853,6 +1866,32 @@
     tokRegexpAllowed = false;
     next();
     return finishNode(node, "Identifier");
+  }
+
+  // Parse current token as binary type and bind following
+  // comma-separated identifiers.
+
+  function parseBinaryBinding(node, binaryType) {
+    node.binaryType = binaryType;
+    node.names = [];
+    for (;;) {
+      var id = parseIdent();
+      if (strict && isStrictBadIdWord(id.name))
+        raise(id.start, "Binding " + id.name + " in strict mode");
+      node.names.push(id);
+      if (!eat(_comma)) break;
+    }
+    semicolon();
+    return finishNode(node, "BinaryBinding");
+  }
+
+  // Parse structure starting from next token
+
+  function parseBinaryStruct(node, kind) {
+    next();
+    var node = parseFunction(node, true, true);
+    node.kind = kind;
+    return node;
   }
 
 });
