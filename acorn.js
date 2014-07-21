@@ -1872,10 +1872,19 @@
     return finishNode(node, "Identifier");
   }
 
-  // Parse current token as binary type and bind following
-  // comma-separated identifiers.
+  // Parse following comma-separated identifiers
+  // as typed variables.
 
   function parseBinaryBinding(node, binaryType) {
+    // look ahead - if there is left bracket, it's function
+    if (input.slice(tokEnd, tokEnd + 1) === _parenL.type) {
+      parseFunction(node, false);
+      var bid = startNodeFrom(binaryType);
+      bid.id = node.id;
+      bid.binaryType = binaryType;
+      node.id = finishNode(bid, "BinaryIdentifier");
+      return node;
+    }
     node.ids = [];
     for (;;) {
       var id = parseIdent();

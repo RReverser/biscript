@@ -461,6 +461,103 @@ test("a\u2028b", {
   ]
 });
 
+test("int sum(int x, int y) { return x + y }", {
+  type: "Program",
+  start: 0,
+  end: 38,
+  body: [
+    {
+      type: "FunctionExpression",
+      start: 0,
+      end: 38,
+      id: {
+        type: "BinaryIdentifier",
+        start: 0,
+        end: 38,
+        id: {
+          type: "Identifier",
+          start: 4,
+          end: 7,
+          name: "sum"
+        },
+        binaryType: {
+          type: "Identifier",
+          start: 0,
+          end: 3,
+          name: "int"
+        }
+      },
+      params: [
+        {
+          type: "BinaryIdentifier",
+          start: 8,
+          end: 13,
+          id: {
+            type: "Identifier",
+            start: 12,
+            end: 13,
+            name: "x"
+          },
+          binaryType: {
+            type: "Identifier",
+            start: 8,
+            end: 11,
+            name: "int"
+          }
+        },
+        {
+          type: "BinaryIdentifier",
+          start: 15,
+          end: 20,
+          id: {
+            type: "Identifier",
+            start: 19,
+            end: 20,
+            name: "y"
+          },
+          binaryType: {
+            type: "Identifier",
+            start: 15,
+            end: 18,
+            name: "int"
+          }
+        }
+      ],
+      rest: null,
+      body: {
+        type: "BlockStatement",
+        start: 22,
+        end: 38,
+        body: [
+          {
+            type: "ReturnStatement",
+            start: 24,
+            end: 36,
+            argument: {
+              type: "BinaryExpression",
+              start: 31,
+              end: 36,
+              left: {
+                type: "Identifier",
+                start: 31,
+                end: 32,
+                name: "x"
+              },
+              operator: "+",
+              right: {
+                type: "Identifier",
+                start: 35,
+                end: 36,
+                name: "y"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+});
+
 // ES6 keywords can be used as type ids in ES5+binary
 
 testFail("if(true) let a = 1;",
