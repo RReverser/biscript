@@ -10,7 +10,7 @@ test("uint x, y", {
   end: 9,
   body: [
     {
-      type: "BinaryBinding",
+      type: "BSBinding",
       start: 0,
       end: 9,
       binaryType: {
@@ -65,7 +65,7 @@ test("struct MyStruct { int x; char y }", {
         end: 33,
         body: [
           {
-            type: "BinaryBinding",
+            type: "BSBinding",
             start: 18,
             end: 24,
             binaryType: {
@@ -84,7 +84,7 @@ test("struct MyStruct { int x; char y }", {
             ]
           },
           {
-            type: "BinaryBinding",
+            type: "BSBinding",
             start: 25,
             end: 31,
             binaryType: {
@@ -115,11 +115,11 @@ test("typedef struct { int x; char y } MyStruct", {
   end: 41,
   body: [
     {
-      type: "BinaryTypeDef",
+      type: "BSTypeDef",
       start: 0,
       end: 41,
       definition: {
-        type: "BinaryIdentifier",
+        type: "BSIdentifier",
         start: 8,
         end: 41,
         binaryType: {
@@ -136,7 +136,7 @@ test("typedef struct { int x; char y } MyStruct", {
             end: 32,
             body: [
               {
-                type: "BinaryBinding",
+                type: "BSBinding",
                 start: 17,
                 end: 23,
                 ids: [
@@ -155,7 +155,7 @@ test("typedef struct { int x; char y } MyStruct", {
                 }
               },
               {
-                type: "BinaryBinding",
+                type: "BSBinding",
                 start: 24,
                 end: 30,
                 ids: [
@@ -208,7 +208,7 @@ test("struct VarSizeStruct(bool hasExtraId) { int id; if (hasExtraId) int extraI
       },
       params: [
         {
-          type: "BinaryIdentifier",
+          type: "BSIdentifier",
           start: 21,
           end: 36,
           id: {
@@ -232,7 +232,7 @@ test("struct VarSizeStruct(bool hasExtraId) { int id; if (hasExtraId) int extraI
         end: 77,
         body: [
           {
-            type: "BinaryBinding",
+            type: "BSBinding",
             start: 40,
             end: 47,
             ids: [
@@ -261,7 +261,7 @@ test("struct VarSizeStruct(bool hasExtraId) { int id; if (hasExtraId) int extraI
               name: "hasExtraId"
             },
             consequent: {
-              type: "BinaryBinding",
+              type: "BSBinding",
               start: 64,
               end: 75,
               ids: [
@@ -313,7 +313,7 @@ test("union MyUnion { ushort s; double d; int i }", {
         end: 43,
         body: [
           {
-            type: "BinaryBinding",
+            type: "BSBinding",
             start: 16,
             end: 25,
             binaryType: {
@@ -332,7 +332,7 @@ test("union MyUnion { ushort s; double d; int i }", {
             ]
           },
           {
-            type: "BinaryBinding",
+            type: "BSBinding",
             start: 26,
             end: 35,
             binaryType: {
@@ -351,7 +351,7 @@ test("union MyUnion { ushort s; double d; int i }", {
             ]
           },
           {
-            type: "BinaryBinding",
+            type: "BSBinding",
             start: 36,
             end: 41,
             binaryType: {
@@ -382,7 +382,7 @@ test("struct { string s } x", {
   end: 21,
   body: [
     {
-      type: "BinaryBinding",
+      type: "BSBinding",
       start: 0,
       end: 21,
       binaryType: {
@@ -398,7 +398,7 @@ test("struct { string s } x", {
           end: 19,
           body: [
             {
-              type: "BinaryBinding",
+              type: "BSBinding",
               start: 9,
               end: 17,
               binaryType: {
@@ -440,7 +440,7 @@ test("a\u2028b", {
   end: 3,
   body: [
     {
-      type: "BinaryBinding",
+      type: "BSBinding",
       start: 0,
       end: 3,
       binaryType: {
@@ -471,7 +471,7 @@ test("int sum(int x, int y) { return x + y }", {
       start: 0,
       end: 38,
       id: {
-        type: "BinaryIdentifier",
+        type: "BSIdentifier",
         start: 0,
         end: 38,
         id: {
@@ -489,7 +489,7 @@ test("int sum(int x, int y) { return x + y }", {
       },
       params: [
         {
-          type: "BinaryIdentifier",
+          type: "BSIdentifier",
           start: 8,
           end: 13,
           id: {
@@ -506,7 +506,7 @@ test("int sum(int x, int y) { return x + y }", {
           }
         },
         {
-          type: "BinaryIdentifier",
+          type: "BSIdentifier",
           start: 15,
           end: 20,
           id: {
@@ -558,6 +558,144 @@ test("int sum(int x, int y) { return x + y }", {
   ]
 });
 
+test("int a[10][6]", {
+  type: "Program",
+  start: 0,
+  end: 12,
+  body: [
+    {
+      type: "BSBinding",
+      start: 0,
+      end: 12,
+      ids: [
+        {
+          type: "BSArray",
+          start: 4,
+          end: 12,
+          base: {
+            type: "BSArray",
+            start: 4,
+            end: 9,
+            base: {
+              type: "Identifier",
+              start: 4,
+              end: 5,
+              name: "a"
+            },
+            length: {
+              type: "Literal",
+              start: 6,
+              end: 8,
+              value: 10,
+              raw: "10"
+            }
+          },
+          length: {
+            type: "Literal",
+            start: 10,
+            end: 11,
+            value: 6,
+            raw: "6"
+          }
+        }
+      ],
+      binaryType: {
+        type: "Identifier",
+        start: 0,
+        end: 3,
+        name: "int"
+      }
+    }
+  ]
+});
+
+test("int first(int a[]) { return a[0] }", {
+  type: "Program",
+  start: 0,
+  end: 34,
+  body: [
+    {
+      type: "FunctionExpression",
+      start: 0,
+      end: 34,
+      id: {
+        type: "BSIdentifier",
+        start: 0,
+        end: 34,
+        id: {
+          type: "Identifier",
+          start: 4,
+          end: 9,
+          name: "first"
+        },
+        binaryType: {
+          type: "Identifier",
+          start: 0,
+          end: 3,
+          name: "int"
+        }
+      },
+      params: [
+        {
+          type: "BSArray",
+          start: 10,
+          end: 17,
+          base: {
+            type: "BSIdentifier",
+            start: 10,
+            end: 15,
+            id: {
+              type: "Identifier",
+              start: 14,
+              end: 15,
+              name: "a"
+            },
+            binaryType: {
+              type: "Identifier",
+              start: 10,
+              end: 13,
+              name: "int"
+            }
+          },
+          length: null
+        }
+      ],
+      rest: null,
+      body: {
+        type: "BlockStatement",
+        start: 19,
+        end: 34,
+        body: [
+          {
+            type: "ReturnStatement",
+            start: 21,
+            end: 32,
+            argument: {
+              type: "MemberExpression",
+              start: 28,
+              end: 32,
+              object: {
+                type: "Identifier",
+                start: 28,
+                end: 29,
+                name: "a"
+              },
+              property: {
+                type: "Literal",
+                start: 30,
+                end: 31,
+                value: 0,
+                raw: "0"
+              },
+              computed: true
+            }
+          }
+        ]
+      }
+    }
+  ]
+});
+
 // ES6 keywords can be used as type ids in ES5+binary
 
 testFail("if(true) let a = 1;",
@@ -569,7 +707,7 @@ test("const a;", {
   end: 8,
   body: [
     {
-      type: "BinaryBinding",
+      type: "BSBinding",
       start: 0,
       end: 8,
       binaryType: {
@@ -596,7 +734,7 @@ test("let x;", {
   end: 6,
   body: [
     {
-      type: "BinaryBinding",
+      type: "BSBinding",
       start: 0,
       end: 6,
       binaryType: {

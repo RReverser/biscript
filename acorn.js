@@ -1186,7 +1186,7 @@
     case _with: return parseWithStatement(node);
     case _braceL: return parseBlock(); // no point creating a function for this
     case _semi: return parseEmptyStatement(node);
-    case _typedef: return parseBinaryTypeDef(node);
+    case _typedef: return parseBSTypeDef(node);
 
       // If the statement does not start with a statement keyword or a
       // brace, it's an ExpressionStatement or LabeledStatement. We
@@ -1199,7 +1199,7 @@
         return parseLabeledStatement(node, maybeName, expr);
       }
       if (tokType === _name) {
-        return parseBinaryBinding(node, expr);
+        return parseBSBinding(node, expr);
       }
       return parseExpressionStatement(node, expr);
     }
@@ -1784,7 +1784,7 @@
           expect(_parenR);
           break;
         } else {
-          node.params.push(parseBinaryIdent());
+          node.params.push(parseBSArray(parseBSIdent(), true));
           if (!eat(_comma)) {
             expect(_parenR);
             break;
@@ -1875,19 +1875,20 @@
   // Parse following comma-separated identifiers
   // as typed variables.
 
-  function parseBinaryBinding(node, binaryType) {
+  function parseBSBinding(node, binaryType) {
     // look ahead - if there is left bracket, it's function
     if (input.slice(tokEnd, tokEnd + 1) === _parenL.type) {
       parseFunction(node, false);
       var bid = startNodeFrom(binaryType);
       bid.id = node.id;
       bid.binaryType = binaryType;
-      node.id = finishNode(bid, "BinaryIdentifier");
+      node.id = finishNode(bid, "BSIdentifier");
       return node;
     }
+
     node.ids = [];
     for (;;) {
-      var id = parseIdent();
+      var id = parseBSArray(parseIdent(), false);
       if (strict && isStrictBadIdWord(id.name))
         raise(id.start, "Binding " + id.name + " in strict mode");
       node.ids.push(id);
@@ -1895,12 +1896,12 @@
     }
     semicolon();
     node.binaryType = binaryType;
-    return finishNode(node, "BinaryBinding");
+    return finishNode(node, "BSBinding");
   }
 
   // Parse optionally typed binary identifier
 
-  function parseBinaryIdent() {
+  function parseBSIdent() {
     var binaryType = parseExpression(true);
     if (tokType !== _name) {
       return binaryType.type === "Identifier" ? binaryType : raise(binaryType.start, "Unexpected token");
@@ -1908,15 +1909,32 @@
     var node = startNodeFrom(binaryType);
     node.id = parseIdent();
     node.binaryType = binaryType;
-    return finishNode(node, "BinaryIdentifier");
+    return finishNode(node, "BSIdentifier");
   }
 
   // Parse type definition
 
-  function parseBinaryTypeDef(node) {
+  function parseBSTypeDef(node) {
     next();
-    node.definition = parseBinaryIdent();
-    return finishNode(node, "BinaryTypeDef");
+    node.definition = parseBSIdent();
+    return finishNode(node, "BSTypeDef");
+  }
+
+  // Parse multi-dimensional array
+
+  function parseBSArray(base, allowDynamic) {
+    while (eat(_bracketL)) {
+      var node = startNodeFrom(base);
+      node.base = base;
+      if (tokType === _bracketR) {
+        node.length = allowDynamic ? null : unexpected();
+      } else {
+        node.length = parseExpression();
+      }
+      expect(_bracketR);
+      base = parseBSArray(finishNode(node, "BSArray"), allowDynamic);
+    }
+    return base;
   }
 
 });
