@@ -50,6 +50,82 @@ test("uint x, y", {
 
 testFail("uint x = 0", "Unexpected token (1:7)");
 
+test("const int x = 0", {
+  type: "Program",
+  start: 0,
+  end: 15,
+  body: [{
+    type: "VariableDeclaration",
+    start: 0,
+    end: 15,
+    declarations: [{
+      type: "VariableDeclarator",
+      start: 10,
+      end: 15,
+      id: {
+        type: "Identifier",
+        start: 10,
+        end: 11,
+        name: "x"
+      },
+      init: {
+        type: "Literal",
+        start: 14,
+        end: 15,
+        value: 0,
+        raw: "0"
+      }
+    }],
+    kind: "const",
+    binaryType: {
+      type: "Identifier",
+      start: 6,
+      end: 9,
+      name: "int"
+    }
+  }]
+}, {ecmaVersion: 6});
+
+test("local int x = 0", {
+  type: "Program",
+  start: 0,
+  end: 15,
+  body: [{
+    type: "VariableDeclaration",
+    start: 0,
+    end: 15,
+    declarations: [{
+      type: "VariableDeclarator",
+      start: 10,
+      end: 15,
+      id: {
+        type: "Identifier",
+        start: 10,
+        end: 11,
+        name: "x"
+      },
+      init: {
+        type: "Literal",
+        start: 14,
+        end: 15,
+        value: 0,
+        raw: "0"
+      }
+    }],
+    kind: "local",
+    binaryType: {
+      type: "Identifier",
+      start: 6,
+      end: 9,
+      name: "int"
+    }
+  }]
+});
+
+testFail("const uint x", "Unexpected token (1:12)", {ecmaVersion: 6});
+
+testFail("local uint int x = 0", "Unexpected token (1:15)");
+
 test("struct MyStruct { int x; char y }", {
   type: "Program",
   start: 0,
@@ -761,8 +837,6 @@ test("int first(int a[]) { return a[0] }", {
     }
   }]
 });
-
-// ES6 keywords can be used as type ids in ES5+binary
 
 testFail("if(true) let a = 1;", "Unexpected token (1:15)");
 

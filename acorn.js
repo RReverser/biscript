@@ -1482,8 +1482,14 @@
     node.kind = kind;
     node.binaryType = null;
     for (;;) {
-      var decl = startNode();
-      decl.id = parseBSArray(parseIdent(), false);
+      var id = parseBSArray(parseIdent(), false);
+      if (tokType === _name) {
+        if (node.binaryType) unexpected();
+        node.binaryType = id;
+        continue;
+      }
+      var decl = startNodeFrom(id);
+      decl.id = id;
       if (strict && isStrictBadIdWord(decl.id.name))
         raise(decl.id.start, "Binding " + decl.id.name + " in strict mode");
       decl.init = kind === "bind" ? null : (eat(_eq) ? parseExpression(true, noIn) : (kind === _const.keyword ? unexpected() : null));
