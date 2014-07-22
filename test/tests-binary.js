@@ -4,37 +4,70 @@ if (typeof exports != "undefined") {
   var testAssert = require("./driver.js").testAssert;
 }
 
-test("uint x, y", {
+test("uint x <name = 'X', comment = 'variable of x'>, y", {
   type: "Program",
   start: 0,
-  end: 9,
+  end: 49,
   body: [{
     type: "VariableDeclaration",
     start: 0,
-    end: 9,
+    end: 49,
     declarations: [
       {
         type: "VariableDeclarator",
         start: 5,
-        end: 6,
+        end: 46,
         id: {
           type: "Identifier",
           start: 5,
           end: 6,
           name: "x"
         },
+        attributes: [
+          {
+            key: {
+              type: "Identifier",
+              start: 8,
+              end: 12,
+              name: "name"
+            },
+            value: {
+              type: "Literal",
+              start: 15,
+              end: 18,
+              value: "X",
+              raw: "'X'"
+            }
+          },
+          {
+            key: {
+              type: "Identifier",
+              start: 20,
+              end: 27,
+              name: "comment"
+            },
+            value: {
+              type: "Literal",
+              start: 30,
+              end: 45,
+              value: "variable of x",
+              raw: "'variable of x'"
+            }
+          }
+        ],
         init: null
       },
       {
         type: "VariableDeclarator",
-        start: 8,
-        end: 9,
+        start: 48,
+        end: 49,
         id: {
           type: "Identifier",
-          start: 8,
-          end: 9,
+          start: 48,
+          end: 49,
           name: "y"
         },
+        attributes: [],
         init: null
       }
     ],
@@ -68,6 +101,7 @@ test("const int x = 0", {
         end: 11,
         name: "x"
       },
+      attributes: [],
       init: {
         type: "Literal",
         start: 14,
@@ -104,6 +138,7 @@ test("local int x = 0", {
         end: 11,
         name: "x"
       },
+      attributes: [],
       init: {
         type: "Literal",
         start: 14,
@@ -166,6 +201,7 @@ test("struct MyStruct { int x; char y }", {
                 end: 23,
                 name: "x"
               },
+              attributes: [],
               init: null
             }],
             kind: "bind",
@@ -190,6 +226,7 @@ test("struct MyStruct { int x; char y }", {
                 end: 31,
                 name: "y"
               },
+              attributes: [],
               init: null
             }],
             kind: "bind",
@@ -201,7 +238,8 @@ test("struct MyStruct { int x; char y }", {
             }
           }
         ]
-      }
+      },
+      attributes: []
     }
   }]
 });
@@ -218,6 +256,7 @@ test("typedef struct { int x; char y } MyStruct", {
       type: "BSIdentifier",
       start: 8,
       end: 41,
+      ref: false,
       id: {
         type: "Identifier",
         start: 33,
@@ -251,6 +290,7 @@ test("typedef struct { int x; char y } MyStruct", {
                   end: 22,
                   name: "x"
                 },
+                attributes: [],
                 init: null
               }],
               kind: "bind",
@@ -275,6 +315,7 @@ test("typedef struct { int x; char y } MyStruct", {
                   end: 30,
                   name: "y"
                 },
+                attributes: [],
                 init: null
               }],
               kind: "bind",
@@ -286,9 +327,11 @@ test("typedef struct { int x; char y } MyStruct", {
               }
             }
           ]
-        }
+        },
+        attributes: []
       }
-    }
+    },
+    attributes: []
   }]
 });
 
@@ -308,6 +351,7 @@ test("typedef byte kbyte[1024]", {
         type: "BSIdentifier",
         start: 8,
         end: 18,
+        ref: false,
         id: {
           type: "Identifier",
           start: 13,
@@ -328,7 +372,8 @@ test("typedef byte kbyte[1024]", {
         value: 1024,
         raw: "1024"
       }
-    }
+    },
+    attributes: []
   }]
 });
 
@@ -357,6 +402,7 @@ test("struct VarSizeStruct(bool hasExtraId) { int id; if (hasExtraId) int extraI
         type: "BSIdentifier",
         start: 21,
         end: 36,
+        ref: false,
         id: {
           type: "Identifier",
           start: 26,
@@ -390,6 +436,7 @@ test("struct VarSizeStruct(bool hasExtraId) { int id; if (hasExtraId) int extraI
                 end: 46,
                 name: "id"
               },
+              attributes: [],
               init: null
             }],
             kind: "bind",
@@ -424,6 +471,7 @@ test("struct VarSizeStruct(bool hasExtraId) { int id; if (hasExtraId) int extraI
                   end: 75,
                   name: "extraId"
                 },
+                attributes: [],
                 init: null
               }],
               kind: "bind",
@@ -437,7 +485,8 @@ test("struct VarSizeStruct(bool hasExtraId) { int id; if (hasExtraId) int extraI
             alternate: null
           }
         ]
-      }
+      },
+      attributes: []
     }
   }]
 });
@@ -482,6 +531,7 @@ test("union MyUnion { ushort s; double d; int i }", {
                 end: 24,
                 name: "s"
               },
+              attributes: [],
               init: null
             }],
             kind: "bind",
@@ -506,6 +556,7 @@ test("union MyUnion { ushort s; double d; int i }", {
                 end: 34,
                 name: "d"
               },
+              attributes: [],
               init: null
             }],
             kind: "bind",
@@ -530,6 +581,7 @@ test("union MyUnion { ushort s; double d; int i }", {
                 end: 41,
                 name: "i"
               },
+              attributes: [],
               init: null
             }],
             kind: "bind",
@@ -541,7 +593,8 @@ test("union MyUnion { ushort s; double d; int i }", {
             }
           }
         ]
-      }
+      },
+      attributes: []
     }
   }]
 });
@@ -564,6 +617,7 @@ test("struct { string s } x", {
         end: 21,
         name: "x"
       },
+      attributes: [],
       init: null
     }],
     kind: "bind",
@@ -593,6 +647,7 @@ test("struct { string s } x", {
               end: 17,
               name: "s"
             },
+            attributes: [],
             init: null
           }],
           kind: "bind",
@@ -603,7 +658,8 @@ test("struct { string s } x", {
             name: "string"
           }
         }]
-      }
+      },
+      attributes: []
     }
   }]
 });
@@ -640,6 +696,7 @@ test("int sum(int x, int y) { return x + y }", {
         type: "BSIdentifier",
         start: 8,
         end: 13,
+        ref: false,
         id: {
           type: "Identifier",
           start: 12,
@@ -657,6 +714,7 @@ test("int sum(int x, int y) { return x + y }", {
         type: "BSIdentifier",
         start: 15,
         end: 20,
+        ref: false,
         id: {
           type: "Identifier",
           start: 19,
@@ -835,6 +893,7 @@ test("int a[10][6]", {
           raw: "6"
         }
       },
+      attributes: [],
       init: null
     }],
     kind: "bind",
@@ -880,6 +939,7 @@ test("int first(int a[]) { return a[0] }", {
         type: "BSIdentifier",
         start: 10,
         end: 15,
+        ref: false,
         id: {
           type: "Identifier",
           start: 14,
@@ -1013,6 +1073,7 @@ test("enum <ushort> MYENUM { COMP_1, COMP_2 = 5, COMP_3 } var1", {
         end: 56,
         name: "var1"
       },
+      attributes: [],
       init: null
     }],
     kind: "bind",
@@ -1080,6 +1141,275 @@ test("enum <ushort> MYENUM { COMP_1, COMP_2 = 5, COMP_3 } var1", {
   }]
 });
 
+test("typedef float VEC3F[3] <read=Vec3FRead, write=Vec3FWrite>", {
+  type: "Program",
+  start: 0,
+  end: 57,
+  body: [{
+    type: "BSTypeDefinition",
+    start: 0,
+    end: 57,
+    definition: {
+      type: "BSArray",
+      start: 8,
+      end: 22,
+      base: {
+        type: "BSIdentifier",
+        start: 8,
+        end: 19,
+        ref: false,
+        id: {
+          type: "Identifier",
+          start: 14,
+          end: 19,
+          name: "VEC3F"
+        },
+        binaryType: {
+          type: "Identifier",
+          start: 8,
+          end: 13,
+          name: "float"
+        }
+      },
+      length: {
+        type: "Literal",
+        start: 20,
+        end: 21,
+        value: 3,
+        raw: "3"
+      }
+    },
+    attributes: [
+      {
+        key: {
+          type: "Identifier",
+          start: 24,
+          end: 28,
+          name: "read"
+        },
+        value: {
+          type: "Identifier",
+          start: 29,
+          end: 38,
+          name: "Vec3FRead"
+        }
+      },
+      {
+        key: {
+          type: "Identifier",
+          start: 40,
+          end: 45,
+          name: "write"
+        },
+        value: {
+          type: "Identifier",
+          start: 46,
+          end: 56,
+          name: "Vec3FWrite"
+        }
+      }
+    ]
+  }]
+});
+
+test("typedef struct { int id; int length; uchar data[length] } RECORD <optimize=false>", {
+  type: "Program",
+  start: 0,
+  end: 81,
+  body: [{
+    type: "BSTypeDefinition",
+    start: 0,
+    end: 81,
+    definition: {
+      type: "BSIdentifier",
+      start: 8,
+      end: 64,
+      ref: false,
+      id: {
+        type: "Identifier",
+        start: 58,
+        end: 64,
+        name: "RECORD"
+      },
+      binaryType: {
+        type: "BinaryStructure",
+        start: 8,
+        end: 57,
+        kind: "struct",
+        id: null,
+        params: [],
+        rest: null,
+        body: {
+          type: "BlockStatement",
+          start: 15,
+          end: 57,
+          body: [
+            {
+              type: "VariableDeclaration",
+              start: 17,
+              end: 24,
+              declarations: [{
+                type: "VariableDeclarator",
+                start: 21,
+                end: 23,
+                id: {
+                  type: "Identifier",
+                  start: 21,
+                  end: 23,
+                  name: "id"
+                },
+                attributes: [],
+                init: null
+              }],
+              kind: "bind",
+              binaryType: {
+                type: "Identifier",
+                start: 17,
+                end: 20,
+                name: "int"
+              }
+            },
+            {
+              type: "VariableDeclaration",
+              start: 25,
+              end: 36,
+              declarations: [{
+                type: "VariableDeclarator",
+                start: 29,
+                end: 35,
+                id: {
+                  type: "Identifier",
+                  start: 29,
+                  end: 35,
+                  name: "length"
+                },
+                attributes: [],
+                init: null
+              }],
+              kind: "bind",
+              binaryType: {
+                type: "Identifier",
+                start: 25,
+                end: 28,
+                name: "int"
+              }
+            },
+            {
+              type: "VariableDeclaration",
+              start: 37,
+              end: 55,
+              declarations: [{
+                type: "VariableDeclarator",
+                start: 43,
+                end: 55,
+                id: {
+                  type: "BSArray",
+                  start: 43,
+                  end: 55,
+                  base: {
+                    type: "Identifier",
+                    start: 43,
+                    end: 47,
+                    name: "data"
+                  },
+                  length: {
+                    type: "Identifier",
+                    start: 48,
+                    end: 54,
+                    name: "length"
+                  }
+                },
+                attributes: [],
+                init: null
+              }],
+              kind: "bind",
+              binaryType: {
+                type: "Identifier",
+                start: 37,
+                end: 42,
+                name: "uchar"
+              }
+            }
+          ]
+        },
+        attributes: []
+      }
+    },
+    attributes: [{
+      key: {
+        type: "Identifier",
+        start: 66,
+        end: 74,
+        name: "optimize"
+      },
+      value: {
+        type: "Literal",
+        start: 75,
+        end: 80,
+        value: false,
+        raw: "false"
+      }
+    }]
+  }]
+});
+
+test("RECORD record[5] <optimize=false>", {
+  type: "Program",
+  start: 0,
+  end: 33,
+  body: [{
+    type: "VariableDeclaration",
+    start: 0,
+    end: 33,
+    declarations: [{
+      type: "VariableDeclarator",
+      start: 7,
+      end: 33,
+      id: {
+        type: "BSArray",
+        start: 7,
+        end: 16,
+        base: {
+          type: "Identifier",
+          start: 7,
+          end: 13,
+          name: "record"
+        },
+        length: {
+          type: "Literal",
+          start: 14,
+          end: 15,
+          value: 5,
+          raw: "5"
+        }
+      },
+      attributes: [{
+        key: {
+          type: "Identifier",
+          start: 18,
+          end: 26,
+          name: "optimize"
+        },
+        value: {
+          type: "Literal",
+          start: 27,
+          end: 32,
+          value: false,
+          raw: "false"
+        }
+      }],
+      init: null
+    }],
+    kind: "bind",
+    binaryType: {
+      type: "Identifier",
+      start: 0,
+      end: 6,
+      name: "RECORD"
+    }
+  }]
+});
+
 testFail("if(true) let a = 1;", "Unexpected token (1:15)");
 
 test("const a;", {
@@ -1100,6 +1430,7 @@ test("const a;", {
         end: 7,
         name: "a"
       },
+      attributes: [],
       init: null
     }],
     kind: "bind",
@@ -1130,6 +1461,7 @@ test("let x;", {
         end: 5,
         name: "x"
       },
+      attributes: [],
       init: null
     }],
     kind: "bind",

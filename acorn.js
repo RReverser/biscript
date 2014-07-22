@@ -1492,6 +1492,7 @@
       decl.id = id;
       if (strict && isStrictBadIdWord(decl.id.name))
         raise(decl.id.start, "Binding " + decl.id.name + " in strict mode");
+      parseBSAttribs(decl);
       decl.init = kind === "bind" ? null : (eat(_eq) ? parseExpression(true, noIn) : (kind === _const.keyword ? unexpected() : null));
       node.declarations.push(finishNode(decl, "VariableDeclarator"));
       if (!eat(_comma)) break;
@@ -1511,8 +1512,8 @@
   // sequences (in argument lists, array literals, or object literals)
   // or the `in` operator (in for loops initalization expressions).
 
-  function parseExpression(noComma, noIn, noVoid) {
-    var expr = parseMaybeAssign(noIn, noVoid);
+  function parseExpression(noComma, noIn, noVoid, noAmp, noGT) {
+    var expr = parseMaybeAssign(noIn, noVoid, noAmp, noGT);
     if (!noComma && tokType === _comma) {
       var node = startNodeFrom(expr);
       node.expressions = [expr];
@@ -1525,8 +1526,8 @@
   // Parse an assignment expression. This includes applications of
   // operators like `+=`.
 
-  function parseMaybeAssign(noIn, noVoid) {
-    var left = parseMaybeConditional(noIn, noVoid);
+  function parseMaybeAssign(noIn, noVoid, noAmp, noGT) {
+    var left = parseMaybeConditional(noIn, noVoid, noAmp, noGT);
     if (tokType.isAssign) {
       var node = startNodeFrom(left);
       node.operator = tokVal;
@@ -1541,8 +1542,8 @@
 
   // Parse a ternary conditional (`?:`) operator.
 
-  function parseMaybeConditional(noIn, noVoid) {
-    var expr = parseExprOps(noIn, noVoid);
+  function parseMaybeConditional(noIn, noVoid, noAmp, noGT) {
+    var expr = parseExprOps(noIn, noVoid, noAmp, noGT);
     if (eat(_question)) {
       var node = startNodeFrom(expr);
       node.test = expr;
@@ -1556,8 +1557,8 @@
 
   // Start the precedence parser.
 
-  function parseExprOps(noIn, noVoid) {
-    return parseExprOp(parseMaybeUnary(noVoid), -1, noIn);
+  function parseExprOps(noIn, noVoid, noAmp, noGT) {
+    return parseExprOp(parseMaybeUnary(noVoid), -1, noIn, noAmp, noGT);
   }
 
   // Parse binary operators with the operator precedence parsing
@@ -1566,9 +1567,9 @@
   // defer further parser to one of its callers when it encounters an
   // operator that has a lower precedence than the set it is parsing.
 
-  function parseExprOp(left, minPrec, noIn) {
+  function parseExprOp(left, minPrec, noIn, noAmp, noGT) {
     var prec = tokType.binop;
-    if (prec != null && (!noIn || tokType !== _in)) {
+    if (prec != null && (!noIn || tokType !== _in) && (!noAmp || tokType !== _bitwiseAND) && (!noGT || tokVal !== '>')) {
       if (prec > minPrec) {
         var node = startNodeFrom(left);
         node.left = left;
@@ -1837,7 +1838,11 @@
       }
     }
 
-    return finishNode(node, isBinaryStructure ? "BinaryStructure" : (isStatement ? "FunctionDeclaration" : "FunctionExpression"));
+    if (isBinaryStructure) {
+      return finishNode(parseBSAttribs(node), "BinaryStructure");
+    }
+
+    return finishNode(node, isStatement ? "FunctionDeclaration" : "FunctionExpression");
   }
 
   // Parses a comma-separated list of expressions, and returns them as
@@ -1916,30 +1921,27 @@
   // Parse optionally typed binary identifier
 
   function parseBSIdent(requireType, allowRefs) {
-    var node = startNode();
+    var node = startNode(), binaryType;
 
     // allow non-typed references
-    if (allowRefs && eat(_bitwiseAND)) {
+    if (allowRefs && !requireType && eat(_bitwiseAND)) {
+      binaryType = null;
       node.ref = true;
-      node.id = parseIdent(true);
-      node.binaryType = null;
     } else {
-      var binaryType = parseExpression(true);
-      // `type &var` should be treated as reference, not as binary expression
-      if (allowRefs && binaryType.type === "BinaryExpression" && binaryType.operator === "&") {
+      binaryType = parseExpression(true, false, false, true);
+      if (allowRefs && eat(_bitwiseAND)) {
         node.ref = true;
-        node.id = binaryType.right;
-        if (node.id.type !== "Identifier") unexpected(node.id.start);
-        node.binaryType = binaryType.left;
       } else {
         if (tokType !== _name) {
           if (binaryType.type !== "Identifier" || requireType) unexpected(binaryType.start);
           return binaryType;
         }
-        node.id = parseIdent(true);
-        node.binaryType = binaryType;
+        node.ref = false;
       }
     }
+
+    node.id = parseIdent(true);
+    node.binaryType = binaryType;
 
     return finishNode(node, "BSIdentifier");
   }
@@ -1949,6 +1951,7 @@
   function parseBSTypeDef(node) {
     next();
     node.definition = parseBSArray(parseBSIdent(true), false);
+    parseBSAttribs(node);
     semicolon();
     return finishNode(node, "BSTypeDefinition");
   }
@@ -1977,7 +1980,7 @@
     next();
     if (tokVal === '<') {
       next();
-      node.baseType = parseIdent(true);
+      node.baseType = parseExpression(false, false, false, false, true);
       if (tokVal !== '>') unexpected();
       next();
     } else {
@@ -1997,6 +2000,40 @@
     }
     expect(_braceR);
     return finishNode(node, "BSEnumeration");
+  }
+
+  // Parse attributes.
+
+  function parseBSAttribs(node) {
+    var first = true;
+    node.attributes = [];
+    if (tokVal === '<') {
+      while (tokVal !== '>') {
+        if (!first) {
+          expect(_comma);
+        } else {
+          first = false;
+          next();
+        }
+
+        var key = parseIdent(true);
+        var value;
+
+        if (tokVal === '=') {
+          next();
+          value = parseExpression(true, false, false, false, true);
+        } else {
+          unexpected();
+        }
+
+        node.attributes.push({
+          key: key,
+          value: value
+        });
+      }
+      next();
+    }
+    return node;
   }
 
 });
