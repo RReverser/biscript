@@ -9,29 +9,42 @@ test("uint x, y", {
   start: 0,
   end: 9,
   body: [{
-    type: "BSBinding",
+    type: "VariableDeclaration",
     start: 0,
     end: 9,
+    declarations: [
+      {
+        type: "VariableDeclarator",
+        start: 5,
+        end: 6,
+        id: {
+          type: "Identifier",
+          start: 5,
+          end: 6,
+          name: "x"
+        },
+        init: null
+      },
+      {
+        type: "VariableDeclarator",
+        start: 8,
+        end: 9,
+        id: {
+          type: "Identifier",
+          start: 8,
+          end: 9,
+          name: "y"
+        },
+        init: null
+      }
+    ],
+    kind: "bind",
     binaryType: {
       type: "Identifier",
       start: 0,
       end: 4,
       name: "uint"
-    },
-    ids: [
-      {
-        type: "Identifier",
-        start: 5,
-        end: 6,
-        name: "x"
-      },
-      {
-        type: "Identifier",
-        start: 8,
-        end: 9,
-        name: "y"
-      }
-    ]
+    }
   }]
 });
 
@@ -49,6 +62,7 @@ test("struct MyStruct { int x; char y }", {
       type: "BinaryStructure",
       start: 0,
       end: 33,
+      kind: "struct",
       id: {
         type: "Identifier",
         start: 7,
@@ -63,42 +77,55 @@ test("struct MyStruct { int x; char y }", {
         end: 33,
         body: [
           {
-            type: "BSBinding",
+            type: "VariableDeclaration",
             start: 18,
             end: 24,
+            declarations: [{
+              type: "VariableDeclarator",
+              start: 22,
+              end: 23,
+              id: {
+                type: "Identifier",
+                start: 22,
+                end: 23,
+                name: "x"
+              },
+              init: null
+            }],
+            kind: "bind",
             binaryType: {
               type: "Identifier",
               start: 18,
               end: 21,
               name: "int"
-            },
-            ids: [{
-              type: "Identifier",
-              start: 22,
-              end: 23,
-              name: "x"
-            }]
+            }
           },
           {
-            type: "BSBinding",
+            type: "VariableDeclaration",
             start: 25,
             end: 31,
+            declarations: [{
+              type: "VariableDeclarator",
+              start: 30,
+              end: 31,
+              id: {
+                type: "Identifier",
+                start: 30,
+                end: 31,
+                name: "y"
+              },
+              init: null
+            }],
+            kind: "bind",
             binaryType: {
               type: "Identifier",
               start: 25,
               end: 29,
               name: "char"
-            },
-            ids: [{
-              type: "Identifier",
-              start: 30,
-              end: 31,
-              name: "y"
-            }]
+            }
           }
         ]
-      },
-      kind: "struct"
+      }
     }
   }]
 });
@@ -108,13 +135,19 @@ test("typedef struct { int x; char y } MyStruct", {
   start: 0,
   end: 41,
   body: [{
-    type: "BSTypeDef",
+    type: "BSTypeDefinition",
     start: 0,
     end: 41,
     definition: {
       type: "BSIdentifier",
       start: 8,
       end: 41,
+      id: {
+        type: "Identifier",
+        start: 33,
+        end: 41,
+        name: "MyStruct"
+      },
       binaryType: {
         type: "BinaryStructure",
         start: 8,
@@ -129,15 +162,22 @@ test("typedef struct { int x; char y } MyStruct", {
           end: 32,
           body: [
             {
-              type: "BSBinding",
+              type: "VariableDeclaration",
               start: 17,
               end: 23,
-              ids: [{
-                type: "Identifier",
+              declarations: [{
+                type: "VariableDeclarator",
                 start: 21,
                 end: 22,
-                name: "x"
+                id: {
+                  type: "Identifier",
+                  start: 21,
+                  end: 22,
+                  name: "x"
+                },
+                init: null
               }],
+              kind: "bind",
               binaryType: {
                 type: "Identifier",
                 start: 17,
@@ -146,15 +186,22 @@ test("typedef struct { int x; char y } MyStruct", {
               }
             },
             {
-              type: "BSBinding",
+              type: "VariableDeclaration",
               start: 24,
               end: 30,
-              ids: [{
-                type: "Identifier",
+              declarations: [{
+                type: "VariableDeclarator",
                 start: 29,
                 end: 30,
-                name: "y"
+                id: {
+                  type: "Identifier",
+                  start: 29,
+                  end: 30,
+                  name: "y"
+                },
+                init: null
               }],
+              kind: "bind",
               binaryType: {
                 type: "Identifier",
                 start: 24,
@@ -164,16 +211,52 @@ test("typedef struct { int x; char y } MyStruct", {
             }
           ]
         }
-      },
-      id: {
-        type: "Identifier",
-        start: 33,
-        end: 41,
-        name: "MyStruct"
       }
     }
   }]
 });
+
+test("typedef byte kbyte[1024]", {
+  type: "Program",
+  start: 0,
+  end: 24,
+  body: [{
+    type: "BSTypeDefinition",
+    start: 0,
+    end: 24,
+    definition: {
+      type: "BSArray",
+      start: 8,
+      end: 24,
+      base: {
+        type: "BSIdentifier",
+        start: 8,
+        end: 18,
+        id: {
+          type: "Identifier",
+          start: 13,
+          end: 18,
+          name: "kbyte"
+        },
+        binaryType: {
+          type: "Identifier",
+          start: 8,
+          end: 12,
+          name: "byte"
+        }
+      },
+      length: {
+        type: "Literal",
+        start: 19,
+        end: 23,
+        value: 1024,
+        raw: "1024"
+      }
+    }
+  }]
+});
+
+testFail("typedef MyStruct", "Unexpected token (1:8)");
 
 test("struct VarSizeStruct(bool hasExtraId) { int id; if (hasExtraId) int extraId }", {
   type: "Program",
@@ -218,15 +301,22 @@ test("struct VarSizeStruct(bool hasExtraId) { int id; if (hasExtraId) int extraI
         end: 77,
         body: [
           {
-            type: "BSBinding",
+            type: "VariableDeclaration",
             start: 40,
             end: 47,
-            ids: [{
-              type: "Identifier",
+            declarations: [{
+              type: "VariableDeclarator",
               start: 44,
               end: 46,
-              name: "id"
+              id: {
+                type: "Identifier",
+                start: 44,
+                end: 46,
+                name: "id"
+              },
+              init: null
             }],
+            kind: "bind",
             binaryType: {
               type: "Identifier",
               start: 40,
@@ -245,15 +335,22 @@ test("struct VarSizeStruct(bool hasExtraId) { int id; if (hasExtraId) int extraI
               name: "hasExtraId"
             },
             consequent: {
-              type: "BSBinding",
+              type: "VariableDeclaration",
               start: 64,
               end: 75,
-              ids: [{
-                type: "Identifier",
+              declarations: [{
+                type: "VariableDeclarator",
                 start: 68,
                 end: 75,
-                name: "extraId"
+                id: {
+                  type: "Identifier",
+                  start: 68,
+                  end: 75,
+                  name: "extraId"
+                },
+                init: null
               }],
+              kind: "bind",
               binaryType: {
                 type: "Identifier",
                 start: 64,
@@ -281,6 +378,7 @@ test("union MyUnion { ushort s; double d; int i }", {
       type: "BinaryStructure",
       start: 0,
       end: 43,
+      kind: "union",
       id: {
         type: "Identifier",
         start: 6,
@@ -295,59 +393,79 @@ test("union MyUnion { ushort s; double d; int i }", {
         end: 43,
         body: [
           {
-            type: "BSBinding",
+            type: "VariableDeclaration",
             start: 16,
             end: 25,
+            declarations: [{
+              type: "VariableDeclarator",
+              start: 23,
+              end: 24,
+              id: {
+                type: "Identifier",
+                start: 23,
+                end: 24,
+                name: "s"
+              },
+              init: null
+            }],
+            kind: "bind",
             binaryType: {
               type: "Identifier",
               start: 16,
               end: 22,
               name: "ushort"
-            },
-            ids: [{
-              type: "Identifier",
-              start: 23,
-              end: 24,
-              name: "s"
-            }]
+            }
           },
           {
-            type: "BSBinding",
+            type: "VariableDeclaration",
             start: 26,
             end: 35,
+            declarations: [{
+              type: "VariableDeclarator",
+              start: 33,
+              end: 34,
+              id: {
+                type: "Identifier",
+                start: 33,
+                end: 34,
+                name: "d"
+              },
+              init: null
+            }],
+            kind: "bind",
             binaryType: {
               type: "Identifier",
               start: 26,
               end: 32,
               name: "double"
-            },
-            ids: [{
-              type: "Identifier",
-              start: 33,
-              end: 34,
-              name: "d"
-            }]
+            }
           },
           {
-            type: "BSBinding",
+            type: "VariableDeclaration",
             start: 36,
             end: 41,
+            declarations: [{
+              type: "VariableDeclarator",
+              start: 40,
+              end: 41,
+              id: {
+                type: "Identifier",
+                start: 40,
+                end: 41,
+                name: "i"
+              },
+              init: null
+            }],
+            kind: "bind",
             binaryType: {
               type: "Identifier",
               start: 36,
               end: 39,
               name: "int"
-            },
-            ids: [{
-              type: "Identifier",
-              start: 40,
-              end: 41,
-              name: "i"
-            }]
+            }
           }
         ]
-      },
-      kind: "union"
+      }
     }
   }]
 });
@@ -357,13 +475,27 @@ test("struct { string s } x", {
   start: 0,
   end: 21,
   body: [{
-    type: "BSBinding",
+    type: "VariableDeclaration",
     start: 0,
     end: 21,
+    declarations: [{
+      type: "VariableDeclarator",
+      start: 20,
+      end: 21,
+      id: {
+        type: "Identifier",
+        start: 20,
+        end: 21,
+        name: "x"
+      },
+      init: null
+    }],
+    kind: "bind",
     binaryType: {
       type: "BinaryStructure",
       start: 0,
       end: 19,
+      kind: "struct",
       id: null,
       params: [],
       rest: null,
@@ -372,58 +504,35 @@ test("struct { string s } x", {
         start: 7,
         end: 19,
         body: [{
-          type: "BSBinding",
+          type: "VariableDeclaration",
           start: 9,
           end: 17,
+          declarations: [{
+            type: "VariableDeclarator",
+            start: 16,
+            end: 17,
+            id: {
+              type: "Identifier",
+              start: 16,
+              end: 17,
+              name: "s"
+            },
+            init: null
+          }],
+          kind: "bind",
           binaryType: {
             type: "Identifier",
             start: 9,
             end: 15,
             name: "string"
-          },
-          ids: [{
-            type: "Identifier",
-            start: 16,
-            end: 17,
-            name: "s"
-          }]
+          }
         }]
-      },
-      kind: "struct"
-    },
-    ids: [{
-      type: "Identifier",
-      start: 20,
-      end: 21,
-      name: "x"
-    }]
+      }
+    }
   }]
 });
 
 testFail("struct { string s }", "Unexpected token (1:19)");
-
-test("a\u2028b", {
-  type: "Program",
-  start: 0,
-  end: 3,
-  body: [{
-    type: "BSBinding",
-    start: 0,
-    end: 3,
-    binaryType: {
-      type: "Identifier",
-      start: 0,
-      end: 1,
-      name: "a"
-    },
-    ids: [{
-      type: "Identifier",
-      start: 2,
-      end: 3,
-      name: "b"
-    }]
-  }]
-});
 
 test("int sum(int x, int y) { return x + y }", {
   type: "Program",
@@ -523,39 +632,46 @@ test("int a[10][6]", {
   start: 0,
   end: 12,
   body: [{
-    type: "BSBinding",
+    type: "VariableDeclaration",
     start: 0,
     end: 12,
-    ids: [{
-      type: "BSArray",
+    declarations: [{
+      type: "VariableDeclarator",
       start: 4,
       end: 12,
-      base: {
+      id: {
         type: "BSArray",
         start: 4,
-        end: 9,
+        end: 12,
         base: {
-          type: "Identifier",
+          type: "BSArray",
           start: 4,
-          end: 5,
-          name: "a"
+          end: 9,
+          base: {
+            type: "Identifier",
+            start: 4,
+            end: 5,
+            name: "a"
+          },
+          length: {
+            type: "Literal",
+            start: 6,
+            end: 8,
+            value: 10,
+            raw: "10"
+          }
         },
         length: {
           type: "Literal",
-          start: 6,
-          end: 8,
-          value: 10,
-          raw: "10"
+          start: 10,
+          end: 11,
+          value: 6,
+          raw: "6"
         }
       },
-      length: {
-        type: "Literal",
-        start: 10,
-        end: 11,
-        value: 6,
-        raw: "6"
-      }
+      init: null
     }],
+    kind: "bind",
     binaryType: {
       type: "Identifier",
       start: 0,
@@ -655,21 +771,28 @@ test("const a;", {
   start: 0,
   end: 8,
   body: [{
-    type: "BSBinding",
+    type: "VariableDeclaration",
     start: 0,
     end: 8,
+    declarations: [{
+      type: "VariableDeclarator",
+      start: 6,
+      end: 7,
+      id: {
+        type: "Identifier",
+        start: 6,
+        end: 7,
+        name: "a"
+      },
+      init: null
+    }],
+    kind: "bind",
     binaryType: {
       type: "Identifier",
       start: 0,
       end: 5,
       name: "const"
-    },
-    ids: [{
-      type: "Identifier",
-      start: 6,
-      end: 7,
-      name: "a"
-    }]
+    }
   }]
 });
 
@@ -678,21 +801,28 @@ test("let x;", {
   start: 0,
   end: 6,
   body: [{
-    type: "BSBinding",
+    type: "VariableDeclaration",
     start: 0,
     end: 6,
+    declarations: [{
+      type: "VariableDeclarator",
+      start: 4,
+      end: 5,
+      id: {
+        type: "Identifier",
+        start: 4,
+        end: 5,
+        name: "x"
+      },
+      init: null
+    }],
+    kind: "bind",
     binaryType: {
       type: "Identifier",
       start: 0,
       end: 3,
       name: "let"
-    },
-    ids: [{
-      type: "Identifier",
-      start: 4,
-      end: 5,
-      name: "x"
-    }]
+    }
   }]
 });
 

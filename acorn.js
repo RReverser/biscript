@@ -1112,8 +1112,8 @@
 
   // Raise an unexpected token error.
 
-  function unexpected() {
-    raise(tokStart, "Unexpected token");
+  function unexpected(pos) {
+    raise(pos !== undefined ? pos : tokStart, "Unexpected token");
   }
 
   // Verify that a node is an lval — something that can be assigned
@@ -1480,12 +1480,13 @@
   function parseVar(node, noIn, kind) {
     node.declarations = [];
     node.kind = kind;
+    node.binaryType = null;
     for (;;) {
       var decl = startNode();
-      decl.id = parseIdent();
+      decl.id = parseBSArray(parseIdent(), false);
       if (strict && isStrictBadIdWord(decl.id.name))
         raise(decl.id.start, "Binding " + decl.id.name + " in strict mode");
-      decl.init = eat(_eq) ? parseExpression(true, noIn) : (kind === _const.keyword ? unexpected() : null);
+      decl.init = kind === "bind" ? null : (eat(_eq) ? parseExpression(true, noIn) : (kind === _const.keyword ? unexpected() : null));
       node.declarations.push(finishNode(decl, "VariableDeclarator"));
       if (!eat(_comma)) break;
     }
@@ -1872,41 +1873,43 @@
     return finishNode(node, "Identifier");
   }
 
+  // Parse function with typed return.
+
+  function parseBSFunction(node, binaryType) {
+    parseFunction(node, false);
+    var bid = startNodeFrom(binaryType);
+    bid.id = node.id;
+    bid.binaryType = binaryType;
+    node.id = finishNode(bid, "BSIdentifier");
+    return node;
+  }
+
   // Parse following comma-separated identifiers
   // as typed variables.
 
   function parseBSBinding(node, binaryType) {
     // look ahead - if there is left bracket, it's function
     if (input.slice(tokEnd, tokEnd + 1) === _parenL.type) {
-      parseFunction(node, false);
-      var bid = startNodeFrom(binaryType);
-      bid.id = node.id;
-      bid.binaryType = binaryType;
-      node.id = finishNode(bid, "BSIdentifier");
+      parseBSFunction(node, binaryType);
+      semicolon();
       return node;
     }
 
-    node.ids = [];
-    for (;;) {
-      var id = parseBSArray(parseIdent(), false);
-      if (strict && isStrictBadIdWord(id.name))
-        raise(id.start, "Binding " + id.name + " in strict mode");
-      node.ids.push(id);
-      if (!eat(_comma)) break;
-    }
-    semicolon();
+    parseVar(node, false, "bind");
     node.binaryType = binaryType;
-    return finishNode(node, "BSBinding");
+    semicolon();
+    return finishNode(node, "VariableDeclaration");
   }
 
   // Parse optionally typed binary identifier
 
-  function parseBSIdent() {
+  function parseBSIdent(requireType) {
     var binaryType = parseExpression(true);
-    if (tokType !== _name) {
-      return binaryType.type === "Identifier" ? binaryType : raise(binaryType.start, "Unexpected token");
-    }
     var node = startNodeFrom(binaryType);
+    if (tokType !== _name) {
+      if (binaryType.type !== "Identifier" || requireType) unexpected(binaryType.start);
+      return binaryType;
+    }
     node.id = parseIdent();
     node.binaryType = binaryType;
     return finishNode(node, "BSIdentifier");
@@ -1916,8 +1919,9 @@
 
   function parseBSTypeDef(node) {
     next();
-    node.definition = parseBSIdent();
-    return finishNode(node, "BSTypeDef");
+    node.definition = parseBSArray(parseBSIdent(true), false);
+    semicolon();
+    return finishNode(node, "BSTypeDefinition");
   }
 
   // Parse multi-dimensional array
