@@ -4,14 +4,14 @@ if (typeof exports != "undefined") {
   var testAssert = require("./driver.js").testAssert;
 }
 
-test("uint x <name = 'X', comment = 'variable of x'>, y", {
+test("uint x <name = 'X', comment = 'variable of x'>, y : 4", {
   type: "Program",
   start: 0,
-  end: 49,
+  end: 53,
   body: [{
     type: "VariableDeclaration",
     start: 0,
-    end: 49,
+    end: 53,
     declarations: [
       {
         type: "VariableDeclarator",
@@ -23,6 +23,7 @@ test("uint x <name = 'X', comment = 'variable of x'>, y", {
           end: 6,
           name: "x"
         },
+        bitLength: null,
         attributes: [
           {
             key: {
@@ -60,12 +61,19 @@ test("uint x <name = 'X', comment = 'variable of x'>, y", {
       {
         type: "VariableDeclarator",
         start: 48,
-        end: 49,
+        end: 53,
         id: {
           type: "Identifier",
           start: 48,
           end: 49,
           name: "y"
+        },
+        bitLength: {
+          type: "Literal",
+          start: 52,
+          end: 53,
+          value: 4,
+          raw: "4"
         },
         attributes: [],
         init: null
@@ -82,6 +90,10 @@ test("uint x <name = 'X', comment = 'variable of x'>, y", {
 });
 
 testFail("uint x = 0", "Unexpected token (1:7)");
+
+testFail("uint x : ''", "Unexpected token (1:9)");
+
+testFail("uint x : this", "Unexpected token (1:9)");
 
 test("const int x = 0", {
   type: "Program",
@@ -101,6 +113,7 @@ test("const int x = 0", {
         end: 11,
         name: "x"
       },
+      bitLength: null,
       attributes: [],
       init: {
         type: "Literal",
@@ -138,6 +151,7 @@ test("local int x = 0", {
         end: 11,
         name: "x"
       },
+      bitLength: null,
       attributes: [],
       init: {
         type: "Literal",
@@ -201,6 +215,7 @@ test("struct MyStruct { int x; char y }", {
                 end: 23,
                 name: "x"
               },
+              bitLength: null,
               attributes: [],
               init: null
             }],
@@ -226,6 +241,7 @@ test("struct MyStruct { int x; char y }", {
                 end: 31,
                 name: "y"
               },
+              bitLength: null,
               attributes: [],
               init: null
             }],
@@ -290,6 +306,7 @@ test("typedef struct { int x; char y } MyStruct", {
                   end: 22,
                   name: "x"
                 },
+                bitLength: null,
                 attributes: [],
                 init: null
               }],
@@ -315,6 +332,7 @@ test("typedef struct { int x; char y } MyStruct", {
                   end: 30,
                   name: "y"
                 },
+                bitLength: null,
                 attributes: [],
                 init: null
               }],
@@ -436,6 +454,7 @@ test("struct VarSizeStruct(bool hasExtraId) { int id; if (hasExtraId) int extraI
                 end: 46,
                 name: "id"
               },
+              bitLength: null,
               attributes: [],
               init: null
             }],
@@ -471,6 +490,7 @@ test("struct VarSizeStruct(bool hasExtraId) { int id; if (hasExtraId) int extraI
                   end: 75,
                   name: "extraId"
                 },
+                bitLength: null,
                 attributes: [],
                 init: null
               }],
@@ -531,6 +551,7 @@ test("union MyUnion { ushort s; double d; int i }", {
                 end: 24,
                 name: "s"
               },
+              bitLength: null,
               attributes: [],
               init: null
             }],
@@ -556,6 +577,7 @@ test("union MyUnion { ushort s; double d; int i }", {
                 end: 34,
                 name: "d"
               },
+              bitLength: null,
               attributes: [],
               init: null
             }],
@@ -581,6 +603,7 @@ test("union MyUnion { ushort s; double d; int i }", {
                 end: 41,
                 name: "i"
               },
+              bitLength: null,
               attributes: [],
               init: null
             }],
@@ -617,6 +640,7 @@ test("struct { string s } x", {
         end: 21,
         name: "x"
       },
+      bitLength: null,
       attributes: [],
       init: null
     }],
@@ -647,6 +671,7 @@ test("struct { string s } x", {
               end: 17,
               name: "s"
             },
+            bitLength: null,
             attributes: [],
             init: null
           }],
@@ -893,6 +918,7 @@ test("int a[10][6]", {
           raw: "6"
         }
       },
+      bitLength: null,
       attributes: [],
       init: null
     }],
@@ -1073,6 +1099,7 @@ test("enum <ushort> MYENUM { COMP_1, COMP_2 = 5, COMP_3 } var1", {
         end: 56,
         name: "var1"
       },
+      bitLength: null,
       attributes: [],
       init: null
     }],
@@ -1258,6 +1285,7 @@ test("typedef struct { int id; int length; uchar data[length] } RECORD <optimize
                   end: 23,
                   name: "id"
                 },
+                bitLength: null,
                 attributes: [],
                 init: null
               }],
@@ -1283,6 +1311,7 @@ test("typedef struct { int id; int length; uchar data[length] } RECORD <optimize
                   end: 35,
                   name: "length"
                 },
+                bitLength: null,
                 attributes: [],
                 init: null
               }],
@@ -1319,6 +1348,7 @@ test("typedef struct { int id; int length; uchar data[length] } RECORD <optimize
                     name: "length"
                   }
                 },
+                bitLength: null,
                 attributes: [],
                 init: null
               }],
@@ -1383,6 +1413,7 @@ test("RECORD record[5] <optimize=false>", {
           raw: "5"
         }
       },
+      bitLength: null,
       attributes: [{
         key: {
           type: "Identifier",
@@ -1430,6 +1461,7 @@ test("const a;", {
         end: 7,
         name: "a"
       },
+      bitLength: null,
       attributes: [],
       init: null
     }],
@@ -1461,6 +1493,7 @@ test("let x;", {
         end: 5,
         name: "x"
       },
+      bitLength: null,
       attributes: [],
       init: null
     }],

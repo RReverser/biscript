@@ -1492,6 +1492,15 @@
       decl.id = id;
       if (strict && isStrictBadIdWord(decl.id.name))
         raise(decl.id.start, "Binding " + decl.id.name + " in strict mode");
+      if (kind === "bind" && eat(_colon)) {
+        var bitLength = parseExprAtom();
+        if (bitLength.type !== "Literal" || typeof bitLength.value !== "number") {
+          unexpected(bitLength.start);
+        }
+        decl.bitLength = bitLength;
+      } else {
+        decl.bitLength = null;
+      }
       parseBSAttribs(decl);
       decl.init = kind === "bind" ? null : (eat(_eq) ? parseExpression(true, noIn) : (kind === _const.keyword ? unexpected() : null));
       node.declarations.push(finishNode(decl, "VariableDeclarator"));
