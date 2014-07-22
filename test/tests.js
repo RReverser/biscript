@@ -10609,26 +10609,41 @@ test("!x", {
   }
 });
 
-test("void x", {
+test("!void x", {
   type: "Program",
   body: [
     {
       type: "ExpressionStatement",
       expression: {
         type: "UnaryExpression",
-        operator: "void",
+        operator: "!",
         prefix: true,
         argument: {
-          type: "Identifier",
-          name: "x",
+          type: "UnaryExpression",
+          operator: "void",
+          prefix: true,
+          argument: {
+            type: "Identifier",
+            name: "x",
+            loc: {
+              start: {
+                line: 1,
+                column: 6
+              },
+              end: {
+                line: 1,
+                column: 7
+              }
+            }
+          },
           loc: {
             start: {
               line: 1,
-              column: 5
+              column: 1
             },
             end: {
               line: 1,
-              column: 6
+              column: 7
             }
           }
         },
@@ -10639,7 +10654,7 @@ test("void x", {
           },
           end: {
             line: 1,
-            column: 6
+            column: 7
           }
         }
       },
@@ -10650,7 +10665,7 @@ test("void x", {
         },
         end: {
           line: 1,
-          column: 6
+          column: 7
         }
       }
     }
@@ -10662,7 +10677,7 @@ test("void x", {
     },
     end: {
       line: 1,
-      column: 6
+      column: 7
     }
   }
 });

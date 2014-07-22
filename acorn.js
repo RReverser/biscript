@@ -1797,7 +1797,7 @@
           expect(_parenR);
           break;
         } else {
-          node.params.push(parseBSArray(parseBSIdent(), true));
+          node.params.push(parseBSArray(parseBSIdent(false, true), true));
           if (!eat(_comma)) {
             expect(_parenR);
             break;
@@ -1915,15 +1915,32 @@
 
   // Parse optionally typed binary identifier
 
-  function parseBSIdent(requireType) {
-    var binaryType = parseExpression(true);
-    var node = startNodeFrom(binaryType);
-    if (tokType !== _name) {
-      if (binaryType.type !== "Identifier" || requireType) unexpected(binaryType.start);
-      return binaryType;
+  function parseBSIdent(requireType, allowRefs) {
+    var node = startNode();
+
+    // allow non-typed references
+    if (allowRefs && eat(_bitwiseAND)) {
+      node.ref = true;
+      node.id = parseIdent(true);
+      node.binaryType = null;
+    } else {
+      var binaryType = parseExpression(true);
+      // `type &var` should be treated as reference, not as binary expression
+      if (allowRefs && binaryType.type === "BinaryExpression" && binaryType.operator === "&") {
+        node.ref = true;
+        node.id = binaryType.right;
+        if (node.id.type !== "Identifier") unexpected(node.id.start);
+        node.binaryType = binaryType.left;
+      } else {
+        if (tokType !== _name) {
+          if (binaryType.type !== "Identifier" || requireType) unexpected(binaryType.start);
+          return binaryType;
+        }
+        node.id = parseIdent(true);
+        node.binaryType = binaryType;
+      }
     }
-    node.id = parseIdent(true);
-    node.binaryType = binaryType;
+
     return finishNode(node, "BSIdentifier");
   }
 

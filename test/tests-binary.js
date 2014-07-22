@@ -703,23 +703,23 @@ test("int sum(int x, int y) { return x + y }", {
   }]
 });
 
-test("void doNothing() {}", {
+test("void assignInt(&dest, int &src) { dest = src }", {
   type: "Program",
   start: 0,
-  end: 19,
+  end: 46,
   body: [{
     type: "FunctionExpression",
     start: 0,
-    end: 19,
+    end: 46,
     id: {
       type: "BSIdentifier",
       start: 0,
-      end: 19,
+      end: 46,
       id: {
         type: "Identifier",
         start: 5,
         end: 14,
-        name: "doNothing"
+        name: "assignInt"
       },
       binaryType: {
         type: "Identifier",
@@ -728,13 +728,67 @@ test("void doNothing() {}", {
         name: "void"
       }
     },
-    params: [],
+    params: [
+      {
+        type: "BSIdentifier",
+        start: 15,
+        end: 20,
+        ref: true,
+        id: {
+          type: "Identifier",
+          start: 16,
+          end: 20,
+          name: "dest"
+        },
+        binaryType: null
+      },
+      {
+        type: "BSIdentifier",
+        start: 22,
+        end: 30,
+        ref: true,
+        id: {
+          type: "Identifier",
+          start: 27,
+          end: 30,
+          name: "src"
+        },
+        binaryType: {
+          type: "Identifier",
+          start: 22,
+          end: 25,
+          name: "int"
+        }
+      }
+    ],
     rest: null,
     body: {
       type: "BlockStatement",
-      start: 17,
-      end: 19,
-      body: []
+      start: 32,
+      end: 46,
+      body: [{
+        type: "ExpressionStatement",
+        start: 34,
+        end: 44,
+        expression: {
+          type: "AssignmentExpression",
+          start: 34,
+          end: 44,
+          operator: "=",
+          left: {
+            type: "Identifier",
+            start: 34,
+            end: 38,
+            name: "dest"
+          },
+          right: {
+            type: "Identifier",
+            start: 41,
+            end: 44,
+            name: "src"
+          }
+        }
+      }]
     }
   }]
 });
