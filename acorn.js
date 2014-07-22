@@ -1702,6 +1702,9 @@
       if (isBinaryStructure && (tokType !== _name) && !node.id) unexpected();
       return node;
 
+    case _enum:
+      return parseBSEnum();
+
     case _new:
       return parseNew();
 
@@ -1916,7 +1919,7 @@
       if (binaryType.type !== "Identifier" || requireType) unexpected(binaryType.start);
       return binaryType;
     }
-    node.id = parseIdent();
+    node.id = parseIdent(true);
     node.binaryType = binaryType;
     return finishNode(node, "BSIdentifier");
   }
@@ -1945,6 +1948,35 @@
       base = parseBSArray(finishNode(node, "BSArray"), allowDynamic);
     }
     return base;
+  }
+
+  // Parse enumeration type
+
+  function parseBSEnum() {
+    var node = startNode();
+    next();
+    if (tokVal === '<') {
+      next();
+      node.baseType = parseIdent(true);
+      if (tokVal !== '>') unexpected();
+      next();
+    } else {
+      node.baseType = null;
+    }
+    node.id = parseIdent();
+    node.declarations = [];
+    expect(_braceL);
+    for (;;) {
+      var decl = startNode();
+      decl.id = parseIdent();
+      if (strict && isStrictBadIdWord(decl.id.name))
+        raise(decl.id.start, "Binding " + decl.id.name + " in strict mode");
+      decl.init = eat(_eq) ? parseExpression(true) : null;
+      node.declarations.push(finishNode(decl, "VariableDeclarator"));
+      if (!eat(_comma)) break;
+    }
+    expect(_braceR);
+    return finishNode(node, "BSEnumeration");
   }
 
 });

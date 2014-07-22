@@ -838,6 +838,158 @@ test("int first(int a[]) { return a[0] }", {
   }]
 });
 
+test("enum MYENUM { COMP_1, COMP_2 = 5, COMP_3 }", {
+  type: "Program",
+  start: 0,
+  end: 42,
+  body: [{
+    type: "ExpressionStatement",
+    start: 0,
+    end: 42,
+    expression: {
+      type: "BSEnumeration",
+      start: 0,
+      end: 42,
+      baseType: null,
+      id: {
+        type: "Identifier",
+        start: 5,
+        end: 11,
+        name: "MYENUM"
+      },
+      declarations: [
+        {
+          type: "VariableDeclarator",
+          start: 14,
+          end: 20,
+          id: {
+            type: "Identifier",
+            start: 14,
+            end: 20,
+            name: "COMP_1"
+          },
+          init: null
+        },
+        {
+          type: "VariableDeclarator",
+          start: 22,
+          end: 32,
+          id: {
+            type: "Identifier",
+            start: 22,
+            end: 28,
+            name: "COMP_2"
+          },
+          init: {
+            type: "Literal",
+            start: 31,
+            end: 32,
+            value: 5,
+            raw: "5"
+          }
+        },
+        {
+          type: "VariableDeclarator",
+          start: 34,
+          end: 40,
+          id: {
+            type: "Identifier",
+            start: 34,
+            end: 40,
+            name: "COMP_3"
+          },
+          init: null
+        }
+      ]
+    }
+  }]
+});
+
+test("enum <ushort> MYENUM { COMP_1, COMP_2 = 5, COMP_3 } var1", {
+  type: "Program",
+  start: 0,
+  end: 56,
+  body: [{
+    type: "VariableDeclaration",
+    start: 0,
+    end: 56,
+    declarations: [{
+      type: "VariableDeclarator",
+      start: 52,
+      end: 56,
+      id: {
+        type: "Identifier",
+        start: 52,
+        end: 56,
+        name: "var1"
+      },
+      init: null
+    }],
+    kind: "bind",
+    binaryType: {
+      type: "BSEnumeration",
+      start: 0,
+      end: 51,
+      baseType: {
+        type: "Identifier",
+        start: 6,
+        end: 12,
+        name: "ushort"
+      },
+      id: {
+        type: "Identifier",
+        start: 14,
+        end: 20,
+        name: "MYENUM"
+      },
+      declarations: [
+        {
+          type: "VariableDeclarator",
+          start: 23,
+          end: 29,
+          id: {
+            type: "Identifier",
+            start: 23,
+            end: 29,
+            name: "COMP_1"
+          },
+          init: null
+        },
+        {
+          type: "VariableDeclarator",
+          start: 31,
+          end: 41,
+          id: {
+            type: "Identifier",
+            start: 31,
+            end: 37,
+            name: "COMP_2"
+          },
+          init: {
+            type: "Literal",
+            start: 40,
+            end: 41,
+            value: 5,
+            raw: "5"
+          }
+        },
+        {
+          type: "VariableDeclarator",
+          start: 43,
+          end: 49,
+          id: {
+            type: "Identifier",
+            start: 43,
+            end: 49,
+            name: "COMP_3"
+          },
+          init: null
+        }
+      ]
+    }
+  }]
+});
+
 testFail("if(true) let a = 1;", "Unexpected token (1:15)");
 
 test("const a;", {
