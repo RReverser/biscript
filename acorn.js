@@ -1194,11 +1194,11 @@
       // next token is a colon and the expression was a simple
       // Identifier node, we switch to interpreting it as a label.
     default:
-      var maybeName = tokVal, expr = parseExpression();
+      var maybeName = tokVal, expr = parseExpression(false, false, true);
       if (starttype === _name && expr.type === "Identifier" && eat(_colon)) {
         return parseLabeledStatement(node, maybeName, expr);
       }
-      if (tokType === _name) {
+      if (tokType === _name || tokType.keyword) {
         return parseBSBinding(node, expr);
       }
       return parseExpressionStatement(node, expr);
@@ -1511,8 +1511,8 @@
   // sequences (in argument lists, array literals, or object literals)
   // or the `in` operator (in for loops initalization expressions).
 
-  function parseExpression(noComma, noIn) {
-    var expr = parseMaybeAssign(noIn);
+  function parseExpression(noComma, noIn, noVoid) {
+    var expr = parseMaybeAssign(noIn, noVoid);
     if (!noComma && tokType === _comma) {
       var node = startNodeFrom(expr);
       node.expressions = [expr];
@@ -1525,8 +1525,8 @@
   // Parse an assignment expression. This includes applications of
   // operators like `+=`.
 
-  function parseMaybeAssign(noIn) {
-    var left = parseMaybeConditional(noIn);
+  function parseMaybeAssign(noIn, noVoid) {
+    var left = parseMaybeConditional(noIn, noVoid);
     if (tokType.isAssign) {
       var node = startNodeFrom(left);
       node.operator = tokVal;
@@ -1541,8 +1541,8 @@
 
   // Parse a ternary conditional (`?:`) operator.
 
-  function parseMaybeConditional(noIn) {
-    var expr = parseExprOps(noIn);
+  function parseMaybeConditional(noIn, noVoid) {
+    var expr = parseExprOps(noIn, noVoid);
     if (eat(_question)) {
       var node = startNodeFrom(expr);
       node.test = expr;
@@ -1556,8 +1556,8 @@
 
   // Start the precedence parser.
 
-  function parseExprOps(noIn) {
-    return parseExprOp(parseMaybeUnary(), -1, noIn);
+  function parseExprOps(noIn, noVoid) {
+    return parseExprOp(parseMaybeUnary(noVoid), -1, noIn);
   }
 
   // Parse binary operators with the operator precedence parsing
@@ -1585,8 +1585,11 @@
 
   // Parse unary operators, both prefix and postfix.
 
-  function parseMaybeUnary() {
+  function parseMaybeUnary(noVoid) {
     if (tokType.prefix) {
+      if (noVoid && tokType.keyword === "void") {
+        return parseIdent(true);
+      }
       var node = startNode(), update = tokType.isUpdate;
       node.operator = tokVal;
       node.prefix = true;
