@@ -1,5 +1,7 @@
 # Acorn (Binary Scripts edition)
 
+[![Build Status](https://travis-ci.org/RReverser/biscript.svg)](https://travis-ci.org/RReverser/biscript)
+
 This is modification of [Acorn][acorn] - a tiny, fast JavaScript parser, written completely in JavaScript.
 
 It aims to implement [010 Editor][010-editor] syntax used for [binary templates][binary-templates] on top of
