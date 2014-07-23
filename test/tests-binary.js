@@ -791,25 +791,14 @@ test("void assignInt(&dest, int &src) { dest = src }", {
   start: 0,
   end: 46,
   body: [{
-    type: "FunctionExpression",
+    type: "FunctionDeclaration",
     start: 0,
     end: 46,
     id: {
-      type: "BSIdentifier",
-      start: 0,
-      end: 46,
-      id: {
-        type: "Identifier",
-        start: 5,
-        end: 14,
-        name: "assignInt"
-      },
-      binaryType: {
-        type: "Identifier",
-        start: 0,
-        end: 4,
-        name: "void"
-      }
+      type: "Identifier",
+      start: 5,
+      end: 14,
+      name: "assignInt"
     },
     params: [
       {

@@ -281,7 +281,7 @@
   var _let = {keyword: "let"}, _const = {keyword: "const"}, _local = {keyword: "local"};
   var _typedef = {keyword: "typedef"}, _struct = {keyword: "struct"}, _union = {keyword: "union"}, _enum = {keyword: "enum"};
   var _while = {keyword: "while", isLoop: true}, _with = {keyword: "with"}, _new = {keyword: "new", beforeExpr: true};
-  var _this = {keyword: "this"};
+  var _this = {keyword: "this"}, _void = {keyword: "void", prefix: true, beforeExpr: true};
 
   // The keywords that denote values.
 
@@ -307,7 +307,7 @@
                       "null": _null, "true": _true, "false": _false, "new": _new, "in": _in,
                       "instanceof": {keyword: "instanceof", binop: 7, beforeExpr: true}, "this": _this,
                       "typeof": {keyword: "typeof", prefix: true, beforeExpr: true},
-                      "void": {keyword: "void", prefix: true, beforeExpr: true},
+                      "void": _void,
                       "delete": {keyword: "delete", prefix: true, beforeExpr: true}};
 
   // Punctuation token types. Again, the `type` property is purely for debugging.
@@ -835,7 +835,7 @@
   // Read an integer, octal integer, or floating-point number.
 
   function readNumber(startsWithDot) {
-    var start = tokPos, isFloat = false, octal = input.charCodeAt(tokPos) === 48;
+    var start = tokPos, isFloat = false;
     if (!startsWithDot && readInt(10) === null) raise(start, "Invalid number");
     if (input.charCodeAt(tokPos) === 46) {
       ++tokPos;
@@ -853,7 +853,7 @@
 
     var str = input.slice(start, tokPos), val;
     if (isFloat) val = parseFloat(str);
-    else if (!octal || str.length === 1) val = parseInt(str, 10);
+    else if (str.charCodeAt(0) !== 48 || str.length === 1) val = parseInt(str, 10);
     else if (/[89]/.test(str) || strict) raise(start, "Invalid number");
     else val = parseInt(str, 8);
     return finishToken(_num, val);
@@ -1175,7 +1175,7 @@
     case _debugger: return parseDebuggerStatement(node);
     case _do: return parseDoStatement(node);
     case _for: return parseForStatement(node);
-    case _function: return parseFunctionStatement(node);
+    case _function: case _void: return parseFunctionStatement(node);
     case _if: return parseIfStatement(node);
     case _return: return parseReturnStatement(node);
     case _switch: return parseSwitchStatement(node);
@@ -1194,7 +1194,7 @@
       // next token is a colon and the expression was a simple
       // Identifier node, we switch to interpreting it as a label.
     default:
-      var maybeName = tokVal, expr = parseExpression(false, false, true);
+      var maybeName = tokVal, expr = parseExpression();
       if (starttype === _name && expr.type === "Identifier" && eat(_colon)) {
         return parseLabeledStatement(node, maybeName, expr);
       }
@@ -1521,8 +1521,8 @@
   // sequences (in argument lists, array literals, or object literals)
   // or the `in` operator (in for loops initalization expressions).
 
-  function parseExpression(noComma, noIn, noVoid, noAmp, noGT) {
-    var expr = parseMaybeAssign(noIn, noVoid, noAmp, noGT);
+  function parseExpression(noComma, noIn, noAmp, noGT) {
+    var expr = parseMaybeAssign(noIn, noAmp, noGT);
     if (!noComma && tokType === _comma) {
       var node = startNodeFrom(expr);
       node.expressions = [expr];
@@ -1535,8 +1535,8 @@
   // Parse an assignment expression. This includes applications of
   // operators like `+=`.
 
-  function parseMaybeAssign(noIn, noVoid, noAmp, noGT) {
-    var left = parseMaybeConditional(noIn, noVoid, noAmp, noGT);
+  function parseMaybeAssign(noIn, noAmp, noGT) {
+    var left = parseMaybeConditional(noIn, noAmp, noGT);
     if (tokType.isAssign) {
       var node = startNodeFrom(left);
       node.operator = tokVal;
@@ -1551,8 +1551,8 @@
 
   // Parse a ternary conditional (`?:`) operator.
 
-  function parseMaybeConditional(noIn, noVoid, noAmp, noGT) {
-    var expr = parseExprOps(noIn, noVoid, noAmp, noGT);
+  function parseMaybeConditional(noIn, noAmp, noGT) {
+    var expr = parseExprOps(noIn, noAmp, noGT);
     if (eat(_question)) {
       var node = startNodeFrom(expr);
       node.test = expr;
@@ -1566,8 +1566,8 @@
 
   // Start the precedence parser.
 
-  function parseExprOps(noIn, noVoid, noAmp, noGT) {
-    return parseExprOp(parseMaybeUnary(noVoid), -1, noIn, noAmp, noGT);
+  function parseExprOps(noIn, noAmp, noGT) {
+    return parseExprOp(parseMaybeUnary(), -1, noIn, noAmp, noGT);
   }
 
   // Parse binary operators with the operator precedence parsing
@@ -1595,16 +1595,17 @@
 
   // Parse unary operators, both prefix and postfix.
 
-  function parseMaybeUnary(noVoid) {
+  function parseMaybeUnary() {
     if (tokType.prefix) {
-      if (noVoid && tokType.keyword === "void") {
-        return parseIdent(true);
-      }
       var node = startNode(), update = tokType.isUpdate;
-      node.operator = tokVal;
-      node.prefix = true;
+      var isVoid = tokType === _void, operator = tokVal;
       tokRegexpAllowed = true;
       next();
+      if (isVoid && (tokType === _parenL || (tokType === _name && input.charCodeAt(tokPos) === 40))) {
+        return parseFunction(node);
+      }
+      node.operator = operator;
+      node.prefix = true;
       node.argument = parseMaybeUnary();
       if (update) checkLVal(node.argument);
       else if (strict && node.operator === "delete" &&
@@ -1937,7 +1938,7 @@
       binaryType = null;
       node.ref = true;
     } else {
-      binaryType = parseExpression(true, false, false, true);
+      binaryType = parseExpression(true, false, true);
       if (allowRefs && eat(_bitwiseAND)) {
         node.ref = true;
       } else {
@@ -1989,7 +1990,7 @@
     next();
     if (tokVal === '<') {
       next();
-      node.baseType = parseExpression(false, false, false, false, true);
+      node.baseType = parseExpression(false, false, false, true);
       if (tokVal !== '>') unexpected();
       next();
     } else {
@@ -2030,7 +2031,7 @@
 
         if (tokVal === '=') {
           next();
-          value = parseExpression(true, false, false, false, true);
+          value = parseExpression(true, false, false, true);
         } else {
           unexpected();
         }
